@@ -1,0 +1,478 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 71;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		39CB90492F891D6B00A7C9E6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39CB90482F891D6B00A7C9E6 /* Assets.xcassets */; };
+		A1B2C3D4E5F6010203040506 /* TrackThorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040507 /* TrackThorApp.swift */; };
+		A1B2C3D4E5F6010203040508 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040509 /* AppDelegate.swift */; };
+		A1B2C3D4E5F6010203040510 /* TrackingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040511 /* TrackingEngine.swift */; };
+		A1B2C3D4E5F6010203040512 /* WiFiMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040513 /* WiFiMonitor.swift */; };
+		A1B2C3D4E5F6010203040514 /* ScreenMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040515 /* ScreenMonitor.swift */; };
+		A1B2C3D4E5F6010203040520 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040521 /* DatabaseManager.swift */; };
+		A1B2C3D4E5F6010203040522 /* WorkDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040523 /* WorkDay.swift */; };
+		A1B2C3D4E5F6010203040524 /* Gap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040525 /* Gap.swift */; };
+		A1B2C3D4E5F6010203040530 /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040531 /* PopoverView.swift */; };
+		A1B2C3D4E5F6010203040532 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040533 /* TodayView.swift */; };
+		A1B2C3D4E5F6010203040534 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040535 /* HistoryView.swift */; };
+		A1B2C3D4E5F6010203040536 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040537 /* SettingsView.swift */; };
+		A1B2C3D4E5F6010203040540 /* StatsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040541 /* StatsWindowController.swift */; };
+		A1B2C3D4E5F6010203040542 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040543 /* StatsView.swift */; };
+		A1B2C3D4E5F6010203040544 /* TimelineBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040545 /* TimelineBar.swift */; };
+		A1B2C3D4E5F6010203040550 /* DurationFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040551 /* DurationFormatter.swift */; };
+		A1B2C3D4E5F6010203040552 /* DateFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040553 /* DateFormatting.swift */; };
+		A1B2C3D4E5F6010203040554 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040555 /* AppSettings.swift */; };
+		A1B2C3D4E5F6010203040556 /* LocationPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040557 /* LocationPermissionManager.swift */; };
+		A1B2C3D4E5F6010203040600 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F6010203040601 /* GRDB */; };
+		A1B2C3D4E5F6010203040610 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040611 /* CoreWLAN.framework */; };
+		A1B2C3D4E5F6010203040612 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040613 /* CoreLocation.framework */; };
+		A1B2C3D4E5F6010203040614 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040615 /* ServiceManagement.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		39CB90482F891D6B00A7C9E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040001 /* TrackThor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = TrackThor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F6010203040507 /* TrackThorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackThorApp.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040509 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040511 /* TrackingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingEngine.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040513 /* WiFiMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiMonitor.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040515 /* ScreenMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenMonitor.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040521 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040523 /* WorkDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkDay.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040525 /* Gap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gap.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040531 /* PopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040533 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040535 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040537 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040541 /* StatsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsWindowController.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040543 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040545 /* TimelineBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineBar.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040551 /* DurationFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationFormatter.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040553 /* DateFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatting.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040555 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040557 /* LocationPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPermissionManager.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040611 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
+		A1B2C3D4E5F6010203040613 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		A1B2C3D4E5F6010203040615 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
+		A1B2C3D4E5F6010203040700 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1B2C3D4E5F6010203040100 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D4E5F6010203040600 /* GRDB in Frameworks */,
+				A1B2C3D4E5F6010203040610 /* CoreWLAN.framework in Frameworks */,
+				A1B2C3D4E5F6010203040612 /* CoreLocation.framework in Frameworks */,
+				A1B2C3D4E5F6010203040614 /* ServiceManagement.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A1B2C3D4E5F6010203040200 = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040201 /* TrackThor */,
+				A1B2C3D4E5F6010203040300 /* Frameworks */,
+				A1B2C3D4E5F6010203040400 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040201 /* TrackThor */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040507 /* TrackThorApp.swift */,
+				A1B2C3D4E5F6010203040509 /* AppDelegate.swift */,
+				A1B2C3D4E5F6010203040210 /* Tracking */,
+				A1B2C3D4E5F6010203040220 /* Storage */,
+				A1B2C3D4E5F6010203040230 /* UI */,
+				A1B2C3D4E5F6010203040240 /* Utilities */,
+				A1B2C3D4E5F6010203040250 /* Resources */,
+			);
+			path = TrackThor;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040210 /* Tracking */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040511 /* TrackingEngine.swift */,
+				A1B2C3D4E5F6010203040513 /* WiFiMonitor.swift */,
+				A1B2C3D4E5F6010203040515 /* ScreenMonitor.swift */,
+			);
+			path = Tracking;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040220 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040521 /* DatabaseManager.swift */,
+				A1B2C3D4E5F6010203040523 /* WorkDay.swift */,
+				A1B2C3D4E5F6010203040525 /* Gap.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040230 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040531 /* PopoverView.swift */,
+				A1B2C3D4E5F6010203040533 /* TodayView.swift */,
+				A1B2C3D4E5F6010203040535 /* HistoryView.swift */,
+				A1B2C3D4E5F6010203040537 /* SettingsView.swift */,
+				A1B2C3D4E5F6010203040231 /* Stats */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040231 /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040541 /* StatsWindowController.swift */,
+				A1B2C3D4E5F6010203040543 /* StatsView.swift */,
+				A1B2C3D4E5F6010203040545 /* TimelineBar.swift */,
+			);
+			path = Stats;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040240 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040551 /* DurationFormatter.swift */,
+				A1B2C3D4E5F6010203040553 /* DateFormatting.swift */,
+				A1B2C3D4E5F6010203040555 /* AppSettings.swift */,
+				A1B2C3D4E5F6010203040557 /* LocationPermissionManager.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040250 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040700 /* Info.plist */,
+				39CB90482F891D6B00A7C9E6 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040300 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040611 /* CoreWLAN.framework */,
+				A1B2C3D4E5F6010203040613 /* CoreLocation.framework */,
+				A1B2C3D4E5F6010203040615 /* ServiceManagement.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040400 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040001 /* TrackThor.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1B2C3D4E5F6010203041000 /* TrackThor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D4E5F6010203041100 /* Build configuration list for PBXNativeTarget "TrackThor" */;
+			buildPhases = (
+				A1B2C3D4E5F6010203041200 /* Sources */,
+				A1B2C3D4E5F6010203040100 /* Frameworks */,
+				A1B2C3D4E5F6010203041300 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TrackThor;
+			packageProductDependencies = (
+				A1B2C3D4E5F6010203040601 /* GRDB */,
+			);
+			productName = TrackThor;
+			productReference = A1B2C3D4E5F6010203040001 /* TrackThor.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1B2C3D4E5F6010203042000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					A1B2C3D4E5F6010203041000 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = A1B2C3D4E5F6010203042100 /* Build configuration list for PBXProject "TrackThor" */;
+			compatibilityVersion = "Xcode 16.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A1B2C3D4E5F6010203040200;
+			packageReferences = (
+				A1B2C3D4E5F6010203043000 /* XCRemoteSwiftPackageReference "GRDB" */,
+			);
+			productRefGroup = A1B2C3D4E5F6010203040400 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1B2C3D4E5F6010203041000 /* TrackThor */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1B2C3D4E5F6010203041300 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				39CB90492F891D6B00A7C9E6 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1B2C3D4E5F6010203041200 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D4E5F6010203040506 /* TrackThorApp.swift in Sources */,
+				A1B2C3D4E5F6010203040508 /* AppDelegate.swift in Sources */,
+				A1B2C3D4E5F6010203040510 /* TrackingEngine.swift in Sources */,
+				A1B2C3D4E5F6010203040512 /* WiFiMonitor.swift in Sources */,
+				A1B2C3D4E5F6010203040514 /* ScreenMonitor.swift in Sources */,
+				A1B2C3D4E5F6010203040520 /* DatabaseManager.swift in Sources */,
+				A1B2C3D4E5F6010203040522 /* WorkDay.swift in Sources */,
+				A1B2C3D4E5F6010203040524 /* Gap.swift in Sources */,
+				A1B2C3D4E5F6010203040530 /* PopoverView.swift in Sources */,
+				A1B2C3D4E5F6010203040532 /* TodayView.swift in Sources */,
+				A1B2C3D4E5F6010203040534 /* HistoryView.swift in Sources */,
+				A1B2C3D4E5F6010203040536 /* SettingsView.swift in Sources */,
+				A1B2C3D4E5F6010203040540 /* StatsWindowController.swift in Sources */,
+				A1B2C3D4E5F6010203040542 /* StatsView.swift in Sources */,
+				A1B2C3D4E5F6010203040544 /* TimelineBar.swift in Sources */,
+				A1B2C3D4E5F6010203040550 /* DurationFormatter.swift in Sources */,
+				A1B2C3D4E5F6010203040552 /* DateFormatting.swift in Sources */,
+				A1B2C3D4E5F6010203040554 /* AppSettings.swift in Sources */,
+				A1B2C3D4E5F6010203040556 /* LocationPermissionManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A1B2C3D4E5F6010203042200 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TrackThor/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.trackthor;
+				PRODUCT_NAME = TrackThor;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A1B2C3D4E5F6010203042201 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TrackThor/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.trackthor;
+				PRODUCT_NAME = TrackThor;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A1B2C3D4E5F6010203042300 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A1B2C3D4E5F6010203042301 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1B2C3D4E5F6010203041100 /* Build configuration list for PBXNativeTarget "TrackThor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F6010203042200 /* Debug */,
+				A1B2C3D4E5F6010203042201 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A1B2C3D4E5F6010203042100 /* Build configuration list for PBXProject "TrackThor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F6010203042300 /* Debug */,
+				A1B2C3D4E5F6010203042301 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1B2C3D4E5F6010203043000 /* XCRemoteSwiftPackageReference "GRDB" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1B2C3D4E5F6010203040601 /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3D4E5F6010203043000 /* XCRemoteSwiftPackageReference "GRDB" */;
+			productName = GRDB;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A1B2C3D4E5F6010203042000 /* Project object */;
+}
