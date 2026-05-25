@@ -2,6 +2,7 @@ import AppKit
 import CoreGraphics
 import Foundation
 import IOKit
+import IOKit.hid
 
 @MainActor
 final class ScreenMonitor: NSObject, ObservableObject {
@@ -14,6 +15,7 @@ final class ScreenMonitor: NSObject, ObservableObject {
   @Published private(set) var isSystemSleeping: Bool = false
   @Published private(set) var isDisplaySleeping: Bool = false
   @Published private(set) var isLidClosed: Bool = false
+  @Published private(set) var idleDuration: TimeInterval = 0
 
   private var workspaceObservers: [NSObjectProtocol] = []
   private var verificationTimer: Timer?
@@ -162,6 +164,7 @@ final class ScreenMonitor: NSObject, ObservableObject {
     var sessionOnConsole: Bool?
     var sessionLoginDone: Bool?
     let lidClosed = readLidClosedState()
+    let idleDuration = readIdleDuration()
 
     if isSystemSleeping || lidClosed {
       resolvedDisplaySleeping = true
@@ -206,6 +209,7 @@ final class ScreenMonitor: NSObject, ObservableObject {
     isScreenUnlocked = resolvedUnlocked
     isDisplaySleeping = resolvedDisplaySleeping
     isLidClosed = lidClosed
+    self.idleDuration = idleDuration
   }
 
   private func boolValue(for key: String, in dictionary: [String: Any]) -> Bool? {
@@ -239,5 +243,34 @@ final class ScreenMonitor: NSObject, ObservableObject {
       return isClosed.boolValue
     }
     return false
+  }
+
+  private func readIdleDuration() -> TimeInterval {
+    guard let matching = IOServiceMatching("IOHIDSystem") else { return 0 }
+
+    let service = IOServiceGetMatchingService(kIOMainPortDefault, matching)
+    guard service != MACH_PORT_NULL else { return 0 }
+    defer { IOObjectRelease(service) }
+
+    guard let property = IORegistryEntryCreateCFProperty(
+      service,
+      "HIDIdleTime" as CFString,
+      kCFAllocatorDefault,
+      0
+    )?.takeRetainedValue() else {
+      return 0
+    }
+
+    let nanoseconds: UInt64?
+    if let value = property as? NSNumber {
+      nanoseconds = value.uint64Value
+    } else if let value = property as? UInt64 {
+      nanoseconds = value
+    } else {
+      nanoseconds = nil
+    }
+
+    guard let nanoseconds else { return 0 }
+    return TimeInterval(nanoseconds) / 1_000_000_000
   }
 }

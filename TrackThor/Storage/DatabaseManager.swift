@@ -44,6 +44,16 @@ final class DatabaseManager {
         t.add(column: "has_mixed_locations", .boolean).notNull().defaults(to: false)
       }
     }
+    migrator.registerMigration("addLastActivityAtToWorkDays") { db in
+      try db.alter(table: "work_days") { t in
+        t.add(column: "last_activity_at", .datetime)
+      }
+      try db.execute(sql: """
+        UPDATE work_days
+        SET last_activity_at = COALESCE(ended_at, CURRENT_TIMESTAMP)
+        WHERE last_activity_at IS NULL
+        """)
+    }
     return migrator
   }
 }

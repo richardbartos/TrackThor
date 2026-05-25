@@ -11,6 +11,7 @@ struct WorkDay: Codable, FetchableRecord, PersistableRecord, Identifiable {
   var date: Date
   var startedAt: Date
   var endedAt: Date?
+  var lastActivityAt: Date?
   var mode: Mode
   var hasMixedLocations: Bool
 
@@ -21,6 +22,7 @@ struct WorkDay: Codable, FetchableRecord, PersistableRecord, Identifiable {
     case date
     case startedAt = "started_at"
     case endedAt = "ended_at"
+    case lastActivityAt = "last_activity_at"
     case mode
     case hasMixedLocations = "has_mixed_locations"
   }
@@ -30,6 +32,7 @@ struct WorkDay: Codable, FetchableRecord, PersistableRecord, Identifiable {
     static let date = Column("date")
     static let startedAt = Column("started_at")
     static let endedAt = Column("ended_at")
+    static let lastActivityAt = Column("last_activity_at")
     static let mode = Column("mode")
     static let hasMixedLocations = Column("has_mixed_locations")
   }

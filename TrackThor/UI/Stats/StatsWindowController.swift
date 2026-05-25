@@ -7,10 +7,10 @@ final class StatsWindowController {
   init(trackingEngine: TrackingEngine, database: DatabaseManager, settings: AppSettings) {
     let view = StatsView(trackingEngine: trackingEngine, database: database)
       .environmentObject(settings)
-      .frame(minWidth: 640, minHeight: 360)
+      .frame(minWidth: 860, minHeight: 560)
 
     panel = NSPanel(
-      contentRect: NSRect(x: 0, y: 0, width: 680, height: 420),
+      contentRect: NSRect(x: 0, y: 0, width: 940, height: 680),
       styleMask: [.titled, .closable, .resizable],
       backing: .buffered,
       defer: false

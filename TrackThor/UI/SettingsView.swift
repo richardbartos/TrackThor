@@ -25,7 +25,6 @@ struct SettingsView: View {
     .background(windowBackground)
     .onAppear {
       location.requestIfNeeded()
-      setLaunchAtLogin(settings.launchAtLogin)
     }
   }
 

@@ -50,6 +50,7 @@ final class TrackingEngine: ObservableObject {
   private var autoTrackingSuppressed = false
   private var lastEventAt: Date?
 
+  private let presenceIdleThreshold: TimeInterval = 60
   private let missedGapThreshold: TimeInterval = 30
 
   init(
@@ -231,8 +232,17 @@ final class TrackingEngine: ObservableObject {
     applySnapshot(await loadSnapshot(for: now))
     state = derivedState(for: todayWorkDay)
 
+    if case .active(let mode) = state,
+       let day = todayWorkDay,
+       let lastActivityAt = day.lastActivityAt,
+       now.timeIntervalSince(lastActivityAt) > missedGapThreshold
+    {
+      await endCurrentDay(at: Self.boundedEnd(lastActivityAt, for: day))
+      state = .gap(mode)
+    }
+
     if case .active(let mode) = state, !conditionsMet(for: mode) {
-      await endCurrentDay(at: now)
+      await endCurrentDay(at: endDateForCurrentActiveLoss(at: now))
       state = .gap(mode)
     }
 
@@ -255,7 +265,8 @@ final class TrackingEngine: ObservableObject {
             continue
           }
 
-          day.endedAt = nextDayStart.addingTimeInterval(-1)
+          let dayEnd = nextDayStart.addingTimeInterval(-1)
+          day.endedAt = Self.boundedEnd(day.lastActivityAt ?? day.startedAt, for: day, latest: dayEnd)
           try day.update(db)
         }
       }
@@ -274,14 +285,18 @@ final class TrackingEngine: ObservableObject {
     switch state {
     case .active(.auto):
       if !autoConditionsMet {
-        await endCurrentDay(at: now)
+        await endCurrentDay(at: endDateForCurrentActiveLoss(at: now))
         state = .gap(.auto)
+      } else {
+        await recordActiveHeartbeat(at: now)
       }
 
     case .active(.manual):
       if !conditionsMet(for: .manual) {
-        await endCurrentDay(at: now)
+        await endCurrentDay(at: endDateForCurrentActiveLoss(at: now))
         state = .gap(.manual)
+      } else {
+        await recordActiveHeartbeat(at: now)
       }
 
     case .gap(.auto):
@@ -360,6 +375,7 @@ final class TrackingEngine: ObservableObject {
         date: dayStart,
         startedAt: now,
         endedAt: nil,
+        lastActivityAt: now,
         mode: mode,
         hasMixedLocations: false
       )
@@ -394,6 +410,7 @@ final class TrackingEngine: ObservableObject {
           try gap.insert(db)
         }
         day.endedAt = nil
+        day.lastActivityAt = now
         day.hasMixedLocations = day.hasMixedLocations || day.mode != mode
         day.mode = mode
         try day.update(db)
@@ -425,6 +442,47 @@ final class TrackingEngine: ObservableObject {
     } catch {
       return
     }
+  }
+
+  private func recordActiveHeartbeat(at now: Date) async {
+    guard let currentDay = todayWorkDay, currentDay.endedAt == nil else { return }
+
+    do {
+      let updatedDay = try await writeToDatabase { db in
+        var day = currentDay
+        day.lastActivityAt = now
+        try day.update(db)
+        return day
+      }
+      todayWorkDay = updatedDay
+    } catch {
+      return
+    }
+  }
+
+  private func inactiveStartedAt(for now: Date) -> Date {
+    guard screenMonitor.idleDuration >= presenceIdleThreshold else { return now }
+    let thresholdCrossedAt = now
+      .addingTimeInterval(-screenMonitor.idleDuration)
+      .addingTimeInterval(presenceIdleThreshold)
+    return min(now, thresholdCrossedAt)
+  }
+
+  private func endDateForCurrentActiveLoss(at now: Date) -> Date {
+    guard
+      let day = todayWorkDay,
+      let lastActivityAt = day.lastActivityAt,
+      now.timeIntervalSince(lastActivityAt) > missedGapThreshold
+    else {
+      return inactiveStartedAt(for: now)
+    }
+
+    return Self.boundedEnd(lastActivityAt, for: day)
+  }
+
+  nonisolated private static func boundedEnd(_ date: Date, for day: WorkDay, latest: Date? = nil) -> Date {
+    let latestDate = latest ?? .distantFuture
+    return min(max(date, day.startedAt), latestDate)
   }
 
   private func loadSnapshot(for referenceDate: Date) async -> DaySnapshot {
@@ -491,11 +549,13 @@ final class TrackingEngine: ObservableObject {
   }
 
   private func conditionsMet(for mode: WorkDay.Mode) -> Bool {
+    let isPresent = screenMonitor.idleDuration < presenceIdleThreshold
+
     switch mode {
     case .manual:
-      return screenMonitor.isScreenUnlocked && !screenMonitor.isSystemSleeping && !screenMonitor.isDisplaySleeping && !screenMonitor.isLidClosed
+      return screenMonitor.isScreenUnlocked && !screenMonitor.isSystemSleeping && !screenMonitor.isDisplaySleeping && !screenMonitor.isLidClosed && isPresent
     case .auto:
-      return screenMonitor.isScreenUnlocked && !screenMonitor.isSystemSleeping && !screenMonitor.isDisplaySleeping && !screenMonitor.isLidClosed && wifiMonitor.isOnWorkWiFi
+      return screenMonitor.isScreenUnlocked && !screenMonitor.isSystemSleeping && !screenMonitor.isDisplaySleeping && !screenMonitor.isLidClosed && wifiMonitor.isOnWorkWiFi && isPresent
     }
   }
 

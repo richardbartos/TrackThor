@@ -36,32 +36,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     settings: settings
   )
 
-  func applicationWillFinishLaunching(_ notification: Notification) {
-    terminateOtherRunningInstances()
-  }
-
   func applicationDidFinishLaunching(_ notification: Notification) {
     _ = databaseManager
 
     statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-    statusBarButton?.title = "--:--"
-    statusBarButton?.imagePosition = .noImage
-    statusBarButton?.action = #selector(togglePopover(_:))
-    statusBarButton?.target = self
+    configureStatusItem()
 
     popover.behavior = .transient
     popover.contentSize = NSSize(width: 340, height: 420)
-
-    let root = PopoverView(
-      trackingEngine: trackingEngine,
-      database: databaseManager,
-      onOpenStats: { [weak self] in self?.openStats() },
-      onOpenSettings: { [weak self] in self?.openSettings() },
-      onQuit: { NSApp.terminate(nil) }
-    )
-    .environmentObject(settings)
-
-    popover.contentViewController = NSHostingController(rootView: root)
+    configurePopoverContentIfNeeded()
 
     trackingEngine.onStatusChanged = { [weak self] title, isActive in
       guard let self, let button = self.statusBarButton else { return }
@@ -70,6 +53,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       button.imagePosition = isActive ? .imageLeading : .noImage
     }
     trackingEngine.start()
+
+    Task { @MainActor in
+      terminateOtherRunningInstances()
+    }
   }
 
   func applicationWillTerminate(_ notification: Notification) {
@@ -81,9 +68,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     if popover.isShown {
       popover.performClose(sender)
     } else {
+      configurePopoverContentIfNeeded()
       popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
       NSApp.activate(ignoringOtherApps: true)
     }
+  }
+
+  private func configureStatusItem() {
+    guard let button = statusBarButton else { return }
+
+    button.title = "--:--"
+    button.imagePosition = .noImage
+    button.action = #selector(togglePopover(_:))
+    button.target = self
+    button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+  }
+
+  private func configurePopoverContentIfNeeded() {
+    guard popover.contentViewController == nil else { return }
+
+    let root = PopoverView(
+      trackingEngine: trackingEngine,
+      database: databaseManager,
+      onOpenStats: { [weak self] in self?.openStats() },
+      onOpenSettings: { [weak self] in self?.openSettings() },
+      onQuit: { NSApp.terminate(nil) }
+    )
+    .environmentObject(settings)
+
+    popover.contentViewController = NSHostingController(rootView: root)
   }
 
   private func openStats() {
