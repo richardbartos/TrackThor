@@ -14,7 +14,6 @@ struct SettingsView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 18) {
         networkCard
-        goalCard
         gapCard
         launchCard
       }
@@ -98,28 +97,6 @@ struct SettingsView: View {
         if location.status == .denied || location.status == .restricted {
           settingsHint("Location permission is required to read the current Wi-Fi network name on macOS 13+.")
         }
-      }
-    }
-  }
-
-  private var goalCard: some View {
-    settingsCard(title: "Daily Goal", subtitle: "Set the target duration for your work day.") {
-      VStack(alignment: .leading, spacing: 12) {
-        settingGroup(title: "Target", detail: "Choose the amount of time you want to work each day.") {
-          HStack(spacing: 12) {
-            stepperCard(title: "Hours", valueText: "\(settings.dailyGoalHoursComponent)") {
-              Stepper("", value: dailyGoalHoursBinding, in: 0...16)
-                .labelsHidden()
-            }
-
-            stepperCard(title: "Minutes", valueText: "\(settings.dailyGoalMinuteComponent)") {
-              Stepper("", value: dailyGoalMinutesBinding, in: 0...45, step: 15)
-                .labelsHidden()
-            }
-          }
-        }
-
-        settingsHint("Current goal: \(DurationFormatter.hoursMinutes(fromMinutes: settings.dailyGoalMinutes))")
       }
     }
   }
@@ -273,20 +250,6 @@ struct SettingsView: View {
     } catch {
       // best-effort; keep toggle value stored
     }
-  }
-
-  private var dailyGoalHoursBinding: Binding<Int> {
-    Binding(
-      get: { settings.dailyGoalHoursComponent },
-      set: { settings.dailyGoalHoursComponent = $0 }
-    )
-  }
-
-  private var dailyGoalMinutesBinding: Binding<Int> {
-    Binding(
-      get: { settings.dailyGoalMinuteComponent },
-      set: { settings.dailyGoalMinuteComponent = $0 }
-    )
   }
 
   private var minimumVisibleGapMinutesBinding: Binding<Int> {

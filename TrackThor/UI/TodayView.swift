@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct TodayView: View {
-  @EnvironmentObject private var settings: AppSettings
   @ObservedObject var trackingEngine: TrackingEngine
   let now: Date
 
@@ -22,12 +21,8 @@ struct TodayView: View {
           .frame(width: 10, height: 10)
       }
 
-      Text(goalLine)
-        .font(.caption)
-        .foregroundStyle(.secondary)
-
-      if showStartManual {
-        Button("▶ Start Manual Day") {
+      if showStartHomeOffice {
+        Button("▶ Start Home Office") {
           trackingEngine.startManualDay()
         }
       }
@@ -41,12 +36,20 @@ struct TodayView: View {
     .frame(maxWidth: .infinity, alignment: .leading)
   }
 
-  private var showStartManual: Bool {
-    trackingEngine.todayWorkDay?.mode != .manual || trackingEngine.todayWorkDay?.endedAt != nil || trackingEngine.todayWorkDay == nil
+  private var showStartHomeOffice: Bool {
+    !isAutoActive && !isManualActive
   }
 
   private var showStopManual: Bool {
-    trackingEngine.todayWorkDay?.endedAt == nil && trackingEngine.todayWorkDay != nil
+    isManualActive
+  }
+
+  private var isAutoActive: Bool {
+    trackingEngine.todayWorkDay?.mode == .auto && trackingEngine.todayWorkDay?.endedAt == nil
+  }
+
+  private var isManualActive: Bool {
+    trackingEngine.todayWorkDay?.mode == .manual && trackingEngine.todayWorkDay?.endedAt == nil
   }
 
   private var todayLine: String {
@@ -57,19 +60,9 @@ struct TodayView: View {
     let start = DateFormatting.timeFormatter.string(from: startDisplay)
     let end = DateFormatting.timeFormatter.string(from: endDisplay)
     // Duration rounds up, but displayed end time never goes into the future.
-    let span = max(0, endRaw.timeIntervalSince(startDisplay) - trackingEngine.todayGapDuration)
+    let span = max(0, endRaw.timeIntervalSince(startDisplay))
     let duration = DurationFormatter.hoursMinutesRoundedUpToMinute(span)
     return "\(prefix(for: day))\(start) → \(end)  ·  \(duration)"
-  }
-
-  private var goalLine: String {
-    guard let day = trackingEngine.todayWorkDay else { return "" }
-    let startDisplay = DateFormatting.floorToMinute(day.startedAt)
-    let endRaw = day.endedAt ?? now
-    let span = max(0, endRaw.timeIntervalSince(startDisplay) - trackingEngine.todayGapDuration)
-    let duration = DurationFormatter.hoursMinutesRoundedUpToMinute(span)
-    let goal = "\(DurationFormatter.hoursMinutes(fromMinutes: settings.dailyGoalMinutes)) goal"
-    return "\(duration) / \(goal)"
   }
 
   private func prefix(for day: WorkDay) -> String {

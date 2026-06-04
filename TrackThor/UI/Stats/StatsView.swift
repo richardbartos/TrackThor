@@ -22,7 +22,7 @@ struct StatsView: View {
         statsCard {
           calendarPanel
         }
-        .frame(width: 260)
+        .frame(width: 300)
 
         statsCard {
           VStack(alignment: .leading, spacing: 14) {
@@ -33,6 +33,23 @@ struct StatsView: View {
               let endDisplay = DateFormatting.floorToMinute(effectiveEndRaw)
 
               VStack(alignment: .leading, spacing: 12) {
+                statsSection(
+                  title: "Duration",
+                  detail: "Total is start to finish. Active subtracts visible gaps."
+                ) {
+                  VStack(spacing: 6) {
+                    durationRow(
+                      label: "Total time",
+                      value: totalDurationText(for: day, endRaw: effectiveEndRaw),
+                      isEmphasized: true
+                    )
+                    durationRow(
+                      label: "Active sessions",
+                      value: activeDurationText(for: day, endRaw: effectiveEndRaw)
+                    )
+                  }
+                }
+
                 statsSection(
                   title: "Summary",
                   detail: "Overview for the selected work day."
@@ -172,7 +189,10 @@ struct StatsView: View {
         )
         .datePickerStyle(.graphical)
         .labelsHidden()
-        .padding(8)
+        .focusable(false)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 10)
         .background(Color.white.opacity(0.72))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
@@ -326,17 +346,28 @@ struct StatsView: View {
       )
   }
 
+  private func durationRow(label: String, value: String, isEmphasized: Bool = false) -> some View {
+    HStack {
+      Text(label)
+        .foregroundStyle(.secondary)
+      Spacer()
+      Text(value)
+        .fontWeight(isEmphasized ? .semibold : .regular)
+    }
+    .font(.system(size: 13))
+    .padding(.vertical, 7)
+    .padding(.horizontal, 10)
+    .background(Color.white.opacity(0.72))
+    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    .overlay(
+      RoundedRectangle(cornerRadius: 10, style: .continuous)
+        .stroke(Color.black.opacity(0.05), lineWidth: 1)
+    )
+  }
+
   private func dayRailDetail(for day: WorkDay) -> String {
     let end = effectiveEnd(for: day)
-    let gapDuration: TimeInterval
-    if dayKey(for: day.date) == dayKey(for: selectedDate ?? day.date) {
-      gapDuration = gaps.reduce(into: 0) { total, gap in
-        total += gap.endedAt.timeIntervalSince(gap.startedAt)
-      }
-    } else {
-      gapDuration = 0
-    }
-    let duration = DurationFormatter.hoursMinutes(max(0, end.timeIntervalSince(day.startedAt) - gapDuration))
+    let duration = totalDurationText(for: day, endRaw: end)
     let start = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(day.startedAt))
     let finish = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(end))
     return "\(start) → \(finish)  •  \(duration)"
@@ -429,18 +460,26 @@ struct StatsView: View {
   private func summaryLine(for day: WorkDay, endDisplay: Date, endRaw: Date) -> String {
     let start = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(day.startedAt))
     let end = DateFormatting.timeFormatter.string(from: endDisplay)
-    let gapDuration = gaps.reduce(into: 0) { total, gap in
-      total += gap.endedAt.timeIntervalSince(gap.startedAt)
-    }
-    let spanSeconds = max(0, endRaw.timeIntervalSince(DateFormatting.floorToMinute(day.startedAt)) - gapDuration)
-    let span = DurationFormatter.hoursMinutesRoundedUpToMinute(spanSeconds)
     let mode: String
     if day.hasMixedLocations {
       mode = "🔀 Home + Office"
     } else {
       mode = day.mode == .manual ? "🏠 Home" : "🏢 Office"
     }
-    return "\(start) → \(end)  ·  \(span)  ·  \(mode)"
+    return "\(start) → \(end)  ·  \(mode)"
+  }
+
+  private func totalDurationText(for day: WorkDay, endRaw: Date) -> String {
+    let spanSeconds = max(0, endRaw.timeIntervalSince(DateFormatting.floorToMinute(day.startedAt)))
+    return DurationFormatter.hoursMinutesRoundedUpToMinute(spanSeconds)
+  }
+
+  private func activeDurationText(for day: WorkDay, endRaw: Date) -> String {
+    let gapDuration = gaps.reduce(into: 0) { total, gap in
+      total += gap.endedAt.timeIntervalSince(gap.startedAt)
+    }
+    let spanSeconds = max(0, endRaw.timeIntervalSince(DateFormatting.floorToMinute(day.startedAt)) - gapDuration)
+    return DurationFormatter.hoursMinutesRoundedUpToMinute(spanSeconds)
   }
 
   private func effectiveEnd(for day: WorkDay) -> Date {

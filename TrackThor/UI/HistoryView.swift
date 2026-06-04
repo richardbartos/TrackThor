@@ -2,7 +2,6 @@ import SwiftUI
 
 struct HistoryView: View {
   let history: [WorkDay]
-  let gapDurations: [Int64: TimeInterval]
   let now: Date
 
   var body: some View {
@@ -49,8 +48,9 @@ struct HistoryView: View {
         let startT = DateFormatting.timeFormatter.string(from: wd.startedAt)
         let spanEnd = effectiveEnd(for: wd)
         let endT = DateFormatting.timeFormatter.string(from: spanEnd)
-        let gapDuration = wd.id.flatMap { gapDurations[$0] } ?? 0
-        let duration = DurationFormatter.hoursMinutes(max(0, spanEnd.timeIntervalSince(wd.startedAt) - gapDuration))
+        let duration = DurationFormatter.hoursMinutesRoundedUpToMinute(
+          max(0, spanEnd.timeIntervalSince(DateFormatting.floorToMinute(wd.startedAt)))
+        )
         let modeIcon: String
         if wd.hasMixedLocations {
           modeIcon = "🔀"
