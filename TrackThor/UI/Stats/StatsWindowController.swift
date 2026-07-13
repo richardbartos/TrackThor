@@ -18,6 +18,7 @@ final class StatsWindowController {
     panel.title = "Stats"
     panel.isReleasedWhenClosed = false
     panel.isFloatingPanel = false
+    panel.hidesOnDeactivate = false
     panel.level = .normal
     panel.center()
     panel.contentView = NSHostingView(rootView: view)
@@ -25,6 +26,7 @@ final class StatsWindowController {
 
   func show() {
     panel.makeKeyAndOrderFront(nil)
+    panel.orderFrontRegardless()
     NSApp.activate(ignoringOtherApps: true)
   }
 
