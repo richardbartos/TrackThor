@@ -15,7 +15,15 @@ final class ScreenMonitor: NSObject, ObservableObject {
   @Published private(set) var isSystemSleeping: Bool = false
   @Published private(set) var isDisplaySleeping: Bool = false
   @Published private(set) var isLidClosed: Bool = false
+  /// An external (non built-in) display is connected and not asleep.
+  @Published private(set) var hasAwakeExternalDisplay: Bool = false
   @Published private(set) var idleDuration: TimeInterval = 0
+
+  /// A closed lid only counts as "not working" when there's no awake external display (clamshell mode).
+  /// Clamshell still has to pass every other check (system awake, unlocked, display awake, not idle).
+  var isLidBlockingWork: Bool {
+    isLidClosed && !hasAwakeExternalDisplay
+  }
 
   private var workspaceObservers: [NSObjectProtocol] = []
   private var verificationTimer: Timer?
@@ -164,15 +172,18 @@ final class ScreenMonitor: NSObject, ObservableObject {
     var sessionOnConsole: Bool?
     var sessionLoginDone: Bool?
     let lidClosed = readLidClosedState()
+    let displays = readDisplayState()
+    let lidBlocksWork = lidClosed && !displays.externalAwake
     let idleDuration = readIdleDuration()
 
-    if isSystemSleeping || lidClosed {
+    // Every display asleep means nobody can be using the Mac, regardless of lid state.
+    if isSystemSleeping || lidBlocksWork || !displays.anyAwake {
       resolvedDisplaySleeping = true
     } else {
       resolvedDisplaySleeping = false
     }
 
-    if resolvedDisplaySleeping || lidClosed {
+    if resolvedDisplaySleeping {
       resolvedUnlocked = false
     }
 
@@ -209,7 +220,33 @@ final class ScreenMonitor: NSObject, ObservableObject {
     isScreenUnlocked = resolvedUnlocked
     isDisplaySleeping = resolvedDisplaySleeping
     isLidClosed = lidClosed
+    hasAwakeExternalDisplay = displays.externalAwake
     self.idleDuration = idleDuration
+  }
+
+  /// Reads the online displays (including sleeping ones) and reports whether any display is awake
+  /// and whether an awake external display is present. Fails open (`anyAwake = true`) if the list
+  /// can't be read, so a CoreGraphics hiccup never blocks tracking on its own; the other checks remain.
+  private func readDisplayState() -> (anyAwake: Bool, externalAwake: Bool) {
+    var count: UInt32 = 0
+    guard CGGetOnlineDisplayList(0, nil, &count) == .success, count > 0 else {
+      return (anyAwake: true, externalAwake: false)
+    }
+
+    var displays = [CGDirectDisplayID](repeating: 0, count: Int(count))
+    guard CGGetOnlineDisplayList(count, &displays, &count) == .success else {
+      return (anyAwake: true, externalAwake: false)
+    }
+
+    var anyAwake = false
+    var externalAwake = false
+    for display in displays.prefix(Int(count)) where CGDisplayIsAsleep(display) == 0 {
+      anyAwake = true
+      if CGDisplayIsBuiltin(display) == 0 {
+        externalAwake = true
+      }
+    }
+    return (anyAwake: anyAwake, externalAwake: externalAwake)
   }
 
   private func boolValue(for key: String, in dictionary: [String: Any]) -> Bool? {

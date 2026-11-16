@@ -1,3 +1,4 @@
+import Combine
 import GRDB
 import SwiftUI
 
@@ -161,6 +162,7 @@ struct StatsView: View {
       gapsTask = nil
     }
     .onChange(of: selectedDate) { _ in loadGaps() }
+    .onChange(of: settings.minimumVisibleGapMinutes) { _ in loadGaps() }
     .onChange(of: trackingEngine.todayWorkDay?.startedAt) { _ in reloadData(selectLatestIfNeeded: false) }
     .onChange(of: trackingEngine.todayWorkDay?.endedAt) { _ in reloadData(selectLatestIfNeeded: false) }
     .onChange(of: trackingEngine.todayWorkDay?.mode) { _ in reloadData(selectLatestIfNeeded: false) }
@@ -569,14 +571,15 @@ struct StatsView: View {
         return
       }
 
-      guard !Task.isCancelled else { return }
-      await MainActor.run {
-        reloadData(selectLatestIfNeeded: false)
-        if selectedDate.map(dayKey(for:)) == deletedKey {
-          selectedDate = workDays.last?.date
-          loadGaps()
-        }
+      // The engine caches today's record; let it drop the deleted row instead of writing to it.
+      trackingEngine.reloadAfterExternalChange()
+
+      // reloadData is asynchronous, so clear a selection pointing at the deleted day first;
+      // reloadData then picks the latest remaining day.
+      if selectedDate.map(dayKey(for:)) == deletedKey {
+        selectedDate = nil
       }
+      reloadData(selectLatestIfNeeded: false)
     }
   }
 

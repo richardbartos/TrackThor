@@ -38,6 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     _ = databaseManager
+    settings.applyLaunchAtLogin()
 
     statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     configureStatusItem()
