@@ -111,6 +111,12 @@ struct DayMetrics {
   var meetingSummary: String { summary(meetingTime) }
   var focusSummary: String { summary(focusTime) }
 
+  /// `time` as a whole-number percentage of the day, or nil for an empty day.
+  func percent(_ time: TimeInterval) -> Int? {
+    guard total >= 60 else { return nil }
+    return Int((time / total * 100).rounded())
+  }
+
   private func summary(_ time: TimeInterval) -> String {
     let duration = DurationFormatter.hoursMinutes(time)
     guard total >= 60, time > 0 else { return duration }

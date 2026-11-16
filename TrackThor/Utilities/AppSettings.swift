@@ -9,6 +9,11 @@ final class AppSettings: ObservableObject {
     static let minimumVisibleGapMinutes = "minimumVisibleGapMinutes"
     static let launchAtLogin = "launchAtLogin"
     static let meetingCalendarIDs = "meetingCalendarIDs"
+    static let clockifyRegion = "clockifyRegion"
+    static let clockifyWorkspaceId = "clockifyWorkspaceId"
+    static let clockifyMeetingProjectId = "clockifyMeetingProjectId"
+    static let clockifyWorkProjectId = "clockifyWorkProjectId"
+    static let clockifyBillable = "clockifyBillable"
   }
 
   @Published var workSSIDs: [String] {
@@ -27,6 +32,28 @@ final class AppSettings: ObservableObject {
     didSet { UserDefaults.standard.set(meetingCalendarIDs, forKey: Keys.meetingCalendarIDs) }
   }
 
+  @Published var clockifyRegion: ClockifyRegion {
+    didSet { UserDefaults.standard.set(clockifyRegion.rawValue, forKey: Keys.clockifyRegion) }
+  }
+
+  @Published var clockifyWorkspaceId: String {
+    didSet { UserDefaults.standard.set(clockifyWorkspaceId, forKey: Keys.clockifyWorkspaceId) }
+  }
+
+  /// Project for the day's meeting time ("MEETING").
+  @Published var clockifyMeetingProjectId: String {
+    didSet { UserDefaults.standard.set(clockifyMeetingProjectId, forKey: Keys.clockifyMeetingProjectId) }
+  }
+
+  /// Project for the rest of the day ("R&D").
+  @Published var clockifyWorkProjectId: String {
+    didSet { UserDefaults.standard.set(clockifyWorkProjectId, forKey: Keys.clockifyWorkProjectId) }
+  }
+
+  @Published var clockifyBillable: Bool {
+    didSet { UserDefaults.standard.set(clockifyBillable, forKey: Keys.clockifyBillable) }
+  }
+
   @Published var minimumVisibleGapMinutes: Int {
     didSet { UserDefaults.standard.set(minimumVisibleGapMinutes, forKey: Keys.minimumVisibleGapMinutes) }
   }
@@ -37,6 +64,12 @@ final class AppSettings: ObservableObject {
   init() {
     self.workSSIDs = UserDefaults.standard.stringArray(forKey: Keys.workSSIDs) ?? []
     self.meetingCalendarIDs = UserDefaults.standard.stringArray(forKey: Keys.meetingCalendarIDs) ?? []
+    let defaults = UserDefaults.standard
+    self.clockifyRegion = defaults.string(forKey: Keys.clockifyRegion).flatMap(ClockifyRegion.init(rawValue:)) ?? .global
+    self.clockifyWorkspaceId = defaults.string(forKey: Keys.clockifyWorkspaceId) ?? ""
+    self.clockifyMeetingProjectId = defaults.string(forKey: Keys.clockifyMeetingProjectId) ?? ""
+    self.clockifyWorkProjectId = defaults.string(forKey: Keys.clockifyWorkProjectId) ?? ""
+    self.clockifyBillable = defaults.object(forKey: Keys.clockifyBillable) as? Bool ?? true
     if let storedMinimumGap = UserDefaults.standard.object(forKey: Keys.minimumVisibleGapMinutes) as? Int {
       self.minimumVisibleGapMinutes = max(1, storedMinimumGap)
     } else {

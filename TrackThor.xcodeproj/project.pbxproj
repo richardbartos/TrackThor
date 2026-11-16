@@ -22,7 +22,6 @@
 		A1B2C3D4E5F6010203040532 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040533 /* TodayView.swift */; };
 		A1B2C3D4E5F6010203040534 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040535 /* HistoryView.swift */; };
 		A1B2C3D4E5F6010203040536 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040537 /* SettingsView.swift */; };
-		A1B2C3D4E5F6010203040540 /* StatsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040541 /* StatsWindowController.swift */; };
 		A1B2C3D4E5F6010203040542 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040543 /* StatsView.swift */; };
 		A1B2C3D4E5F6010203040544 /* TimelineBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040545 /* TimelineBar.swift */; };
 		A1B2C3D4E5F6010203040550 /* DurationFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040551 /* DurationFormatter.swift */; };
@@ -34,6 +33,14 @@
 		A1B2C3D4E5F6010203040610 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040611 /* CoreWLAN.framework */; };
 		A1B2C3D4E5F6010203040612 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040613 /* CoreLocation.framework */; };
 		A1B2C3D4E5F6010203040614 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040615 /* ServiceManagement.framework */; };
+		A1B2C3D4E5F6010203040810 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040811 /* Keychain.swift */; };
+		A1B2C3D4E5F6010203040812 /* ClockifyEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040813 /* ClockifyEntry.swift */; };
+		A1B2C3D4E5F6010203040814 /* ClockifyClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040815 /* ClockifyClient.swift */; };
+		A1B2C3D4E5F6010203040816 /* ClockifyPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040817 /* ClockifyPlanner.swift */; };
+		A1B2C3D4E5F6010203040818 /* ClockifyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040819 /* ClockifyService.swift */; };
+		A1B2C3D4E5F6010203040820 /* ClockifyReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040821 /* ClockifyReportView.swift */; };
+		A1B2C3D4E5F6010203040824 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040825 /* Components.swift */; };
+		A1B2C3D4E5F6010203040826 /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040827 /* MainWindow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,7 +60,6 @@
 		A1B2C3D4E5F6010203040533 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040535 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040537 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6010203040541 /* StatsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsWindowController.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040543 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040545 /* TimelineBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineBar.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040551 /* DurationFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationFormatter.swift; sourceTree = "<group>"; };
@@ -65,6 +71,14 @@
 		A1B2C3D4E5F6010203040613 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		A1B2C3D4E5F6010203040615 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 		A1B2C3D4E5F6010203040700 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040811 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040813 /* ClockifyEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockifyEntry.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040815 /* ClockifyClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockifyClient.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040817 /* ClockifyPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockifyPlanner.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040819 /* ClockifyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockifyService.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040821 /* ClockifyReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockifyReportView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040825 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040827 /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +108,7 @@
 		A1B2C3D4E5F6010203040201 /* TrackThor */ = {
 			isa = PBXGroup;
 			children = (
+				A1B2C3D4E5F6010203040900 /* Clockify */,
 				A1B2C3D4E5F6010203040507 /* TrackThorApp.swift */,
 				A1B2C3D4E5F6010203040509 /* AppDelegate.swift */,
 				A1B2C3D4E5F6010203040210 /* Tracking */,
@@ -119,6 +134,7 @@
 		A1B2C3D4E5F6010203040220 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				A1B2C3D4E5F6010203040813 /* ClockifyEntry.swift */,
 				A1B2C3D4E5F6010203040521 /* DatabaseManager.swift */,
 				A1B2C3D4E5F6010203040527 /* Meeting.swift */,
 				A1B2C3D4E5F6010203040523 /* WorkDay.swift */,
@@ -130,6 +146,9 @@
 		A1B2C3D4E5F6010203040230 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				A1B2C3D4E5F6010203040827 /* MainWindow.swift */,
+				A1B2C3D4E5F6010203040825 /* Components.swift */,
+				A1B2C3D4E5F6010203040901 /* Clockify */,
 				A1B2C3D4E5F6010203040531 /* PopoverView.swift */,
 				A1B2C3D4E5F6010203040533 /* TodayView.swift */,
 				A1B2C3D4E5F6010203040535 /* HistoryView.swift */,
@@ -142,7 +161,6 @@
 		A1B2C3D4E5F6010203040231 /* Stats */ = {
 			isa = PBXGroup;
 			children = (
-				A1B2C3D4E5F6010203040541 /* StatsWindowController.swift */,
 				A1B2C3D4E5F6010203040543 /* StatsView.swift */,
 				A1B2C3D4E5F6010203040545 /* TimelineBar.swift */,
 			);
@@ -152,6 +170,7 @@
 		A1B2C3D4E5F6010203040240 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				A1B2C3D4E5F6010203040811 /* Keychain.swift */,
 				A1B2C3D4E5F6010203040551 /* DurationFormatter.swift */,
 				A1B2C3D4E5F6010203040559 /* IntervalMath.swift */,
 				A1B2C3D4E5F6010203040553 /* DateFormatting.swift */,
@@ -186,6 +205,24 @@
 				A1B2C3D4E5F6010203040001 /* TrackThor.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040900 /* Clockify */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040819 /* ClockifyService.swift */,
+				A1B2C3D4E5F6010203040817 /* ClockifyPlanner.swift */,
+				A1B2C3D4E5F6010203040815 /* ClockifyClient.swift */,
+			);
+			path = Clockify;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6010203040901 /* Clockify */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6010203040821 /* ClockifyReportView.swift */,
+			);
+			path = Clockify;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -262,6 +299,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4E5F6010203040826 /* MainWindow.swift in Sources */,
+				A1B2C3D4E5F6010203040824 /* Components.swift in Sources */,
+				A1B2C3D4E5F6010203040820 /* ClockifyReportView.swift in Sources */,
+				A1B2C3D4E5F6010203040818 /* ClockifyService.swift in Sources */,
+				A1B2C3D4E5F6010203040816 /* ClockifyPlanner.swift in Sources */,
+				A1B2C3D4E5F6010203040814 /* ClockifyClient.swift in Sources */,
+				A1B2C3D4E5F6010203040812 /* ClockifyEntry.swift in Sources */,
+				A1B2C3D4E5F6010203040810 /* Keychain.swift in Sources */,
 				A1B2C3D4E5F6010203040506 /* TrackThorApp.swift in Sources */,
 				A1B2C3D4E5F6010203040508 /* AppDelegate.swift in Sources */,
 				A1B2C3D4E5F6010203040510 /* TrackingEngine.swift in Sources */,
@@ -274,7 +319,6 @@
 				A1B2C3D4E5F6010203040532 /* TodayView.swift in Sources */,
 				A1B2C3D4E5F6010203040534 /* HistoryView.swift in Sources */,
 				A1B2C3D4E5F6010203040536 /* SettingsView.swift in Sources */,
-				A1B2C3D4E5F6010203040540 /* StatsWindowController.swift in Sources */,
 				A1B2C3D4E5F6010203040542 /* StatsView.swift in Sources */,
 				A1B2C3D4E5F6010203040544 /* TimelineBar.swift in Sources */,
 				A1B2C3D4E5F6010203040558 /* IntervalMath.swift in Sources */,
@@ -293,7 +337,7 @@
 		A1B2C3D4E5F6010203042200 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
@@ -317,8 +361,7 @@
 		A1B2C3D4E5F6010203042201 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
-				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;

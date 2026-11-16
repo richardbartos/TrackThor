@@ -48,7 +48,7 @@ final class MeetingSync: ObservableObject {
   private static let syncInterval: TimeInterval = 5 * 60
 
   /// Bump whenever `isMeeting` changes, so frozen history is recalculated once with the new rules.
-  private static let rulesVersion = 3
+  private static let rulesVersion = 4
   private static let rulesVersionKey = "meetingRulesVersion"
 
   /// Events whose title contains one of these (case/diacritics-insensitive) are never meetings.
@@ -99,6 +99,12 @@ final class MeetingSync: ObservableObject {
 
     reloadCalendars()
     sync()
+
+    // Calendars were picked before but permission is undecided — e.g. a rebuilt debug app that
+    // macOS treats as new. Ask again right away instead of silently not tracking meetings.
+    if access == .notDetermined && !settings.meetingCalendarIDs.isEmpty {
+      Task { await requestAccess() }
+    }
   }
 
   func stop() {
@@ -206,7 +212,8 @@ final class MeetingSync: ObservableObject {
         let rangeEnd = calendar.date(byAdding: .day, value: 1, to: lastDay)
       else { return }
 
-      let events = fetchEvents(from: rangeStart, to: rangeEnd, in: selectedCalendars).filter(Self.isMeeting)
+      let events = fetchEvents(from: rangeStart, to: rangeEnd, in: selectedCalendars)
+        .compactMap { event in Self.kind(of: event).map { (event, $0) } }
 
       var meetingsByDay: [Date: [Meeting]] = [:]
       for day in sortedDays {
@@ -247,7 +254,7 @@ final class MeetingSync: ObservableObject {
     let today = Calendar.current.startOfDay(for: Date())
     return try await Task.detached(priority: .utility) {
       try dbQueue.read { db in
-        try Meeting
+        try Meeting.meetingsOnly
           .filter(Meeting.Columns.date == today)
           .order(Meeting.Columns.startedAt.asc)
           .fetchAll(db)
@@ -271,6 +278,16 @@ final class MeetingSync: ObservableObject {
 
   /// A meeting is a timed, non-cancelled event with at least one other person that you haven't declined.
   /// Placeholders and reminders (by title) never count.
+  /// Out-of-office events ("OOO" as a word in the title) are stored separately; they never count
+  /// as meetings and are taken out of the day when reporting to Clockify.
+  private static func kind(of event: EKEvent) -> Meeting.Kind? {
+    guard event.status != .canceled, event.endDate > event.startDate else { return nil }
+    if (event.title ?? "").range(of: #"\bOOO\b"#, options: [.regularExpression, .caseInsensitive]) != nil {
+      return .outOfOffice
+    }
+    return isMeeting(event) ? .meeting : nil
+  }
+
   private static func isMeeting(_ event: EKEvent) -> Bool {
     guard !event.isAllDay, event.status != .canceled, event.endDate > event.startDate else { return false }
 
@@ -310,11 +327,11 @@ final class MeetingSync: ObservableObject {
   }
 
   /// Meetings overlapping one day, clipped to it. The same event in two selected calendars is kept once.
-  private static func meetings(from events: [EKEvent], day: Date, dayEnd: Date) -> [Meeting] {
+  private static func meetings(from events: [(EKEvent, Meeting.Kind)], day: Date, dayEnd: Date) -> [Meeting] {
     var seen: Set<String> = []
     var result: [Meeting] = []
 
-    for event in events {
+    for (event, kind) in events {
       let start = max(event.startDate, day)
       let end = min(event.endDate, dayEnd)
       guard end > start else { continue }
@@ -331,7 +348,8 @@ final class MeetingSync: ObservableObject {
           calendarId: event.calendar.calendarIdentifier,
           title: event.title ?? "Untitled",
           startedAt: start,
-          endedAt: end
+          endedAt: end,
+          kind: kind
         )
       )
     }

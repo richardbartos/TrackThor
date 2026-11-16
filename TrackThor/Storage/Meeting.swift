@@ -1,9 +1,16 @@
 import Foundation
 import GRDB
 
-/// A calendar meeting, stored per local day (clipped to that day) so history stays stable
-/// even if the calendar event is later edited or deleted.
+/// A calendar event relevant to tracking, stored per local day (clipped to that day) so history
+/// stays stable even if the calendar event is later edited or deleted.
 struct Meeting: Codable, FetchableRecord, PersistableRecord, Identifiable, Equatable {
+  enum Kind: String, Codable {
+    /// Counts as meeting time.
+    case meeting
+    /// Out of office ("OOO" in the title): not tracked, used for Clockify reporting.
+    case outOfOffice = "ooo"
+  }
+
   var id: Int64?
   var date: Date
   var eventId: String
@@ -11,6 +18,7 @@ struct Meeting: Codable, FetchableRecord, PersistableRecord, Identifiable, Equat
   var title: String
   var startedAt: Date
   var endedAt: Date
+  var kind: Kind
 
   static let databaseTableName = "meetings"
 
@@ -22,11 +30,18 @@ struct Meeting: Codable, FetchableRecord, PersistableRecord, Identifiable, Equat
     case title
     case startedAt = "started_at"
     case endedAt = "ended_at"
+    case kind
   }
 
   enum Columns {
     static let date = Column("date")
     static let startedAt = Column("started_at")
+    static let kind = Column("kind")
+  }
+
+  /// Only real meetings (not out-of-office events).
+  static var meetingsOnly: QueryInterfaceRequest<Meeting> {
+    Meeting.filter(Columns.kind == Kind.meeting.rawValue)
   }
 
   var interval: DateInterval { IntervalMath.make(startedAt, endedAt) }
