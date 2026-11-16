@@ -6,7 +6,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   private var statusItem: NSStatusItem!
   private let popover = NSPopover()
   private var statusBarButton: NSStatusBarButton? { statusItem.button }
-  private var settingsWindow: NSWindow?
   private lazy var activeStatusImage: NSImage? = {
     let size = NSSize(width: 7, height: 7)
     let image = NSImage(size: size)
@@ -31,12 +30,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   )
 
   private lazy var meetingSync = MeetingSync(settings: settings, database: databaseManager)
-
-  private lazy var statsWindowController = StatsWindowController(
+  private lazy var clockifyService = ClockifyService(settings: settings, database: databaseManager)
+  private lazy var mainWindowController = MainWindowController(
+    settings: settings,
     trackingEngine: trackingEngine,
     meetingSync: meetingSync,
-    database: databaseManager,
-    settings: settings
+    clockify: clockifyService,
+    wifiMonitor: wifiMonitor,
+    database: databaseManager
   )
 
   func applicationDidFinishLaunching(_ notification: Notification) {
@@ -100,8 +101,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       trackingEngine: trackingEngine,
       meetingSync: meetingSync,
       database: databaseManager,
-      onOpenStats: { [weak self] in self?.openStats() },
-      onOpenSettings: { [weak self] in self?.openSettings() },
+      onOpenStats: { [weak self] in self?.open(.stats) },
+      onOpenSettings: { [weak self] in self?.open(.general) },
+      onOpenClockify: { [weak self] in self?.open(.clockify) },
       onQuit: { NSApp.terminate(nil) }
     )
     .environmentObject(settings)
@@ -113,38 +115,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     popover.contentViewController = controller
   }
 
-  private func openStats() {
-    settingsWindow?.orderOut(nil)
-    statsWindowController.show()
-  }
-
-  private func openSettings() {
-    statsWindowController.hide()
-    if let settingsWindow {
-      settingsWindow.makeKeyAndOrderFront(nil)
-      settingsWindow.orderFrontRegardless()
-      NSApp.activate(ignoringOtherApps: true)
-      return
-    }
-
-    let window = NSWindow(
-      contentRect: NSRect(x: 0, y: 0, width: 720, height: 620),
-      styleMask: [.titled, .closable, .miniaturizable],
-      backing: .buffered,
-      defer: false
-    )
-    window.title = "Settings"
-    window.center()
-    window.isReleasedWhenClosed = false
-    window.contentView = NSHostingView(rootView: SettingsView(
-      wifiMonitor: wifiMonitor,
-      meetingSync: meetingSync,
-      bringToFront: { [weak self] in self?.openSettings() }
-    ).environmentObject(settings))
-    settingsWindow = window
-    window.makeKeyAndOrderFront(nil)
-    window.orderFrontRegardless()
-    NSApp.activate(ignoringOtherApps: true)
+  func open(_ section: AppSection) {
+    popover.performClose(nil)
+    mainWindowController.show(section)
   }
 
   private func terminateOtherRunningInstances() {

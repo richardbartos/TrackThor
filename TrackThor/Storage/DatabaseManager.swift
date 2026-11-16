@@ -70,6 +70,23 @@ final class DatabaseManager {
         t.column("is_final", .boolean).notNull().defaults(to: false)
       }
     }
+    migrator.registerMigration("addKindToMeetings") { db in
+      try db.alter(table: "meetings") { t in
+        t.add(column: "kind", .text).notNull().defaults(to: "meeting")
+      }
+    }
+    migrator.registerMigration("createClockifyEntries") { db in
+      try db.create(table: "clockify_entries") { t in
+        t.autoIncrementedPrimaryKey("id")
+        t.column("date", .date).notNull().indexed()
+        t.column("workspace_id", .text).notNull()
+        t.column("clockify_id", .text).notNull()
+        t.column("category", .text).notNull()
+        t.column("started_at", .datetime).notNull()
+        t.column("ended_at", .datetime).notNull()
+        t.column("pushed_at", .datetime).notNull()
+      }
+    }
     return migrator
   }
 }
