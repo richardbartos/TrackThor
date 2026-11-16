@@ -49,11 +49,11 @@ struct PopoverView: View {
       reloadTask?.cancel()
       reloadTask = nil
     }
-    .onChange(of: trackingEngine.todayWorkDay?.endedAt) { _ in reloadHistory() }
-    .onChange(of: trackingEngine.todayWorkDay?.startedAt) { _ in reloadHistory() }
-    .onChange(of: trackingEngine.todayWorkDay?.mode) { _ in reloadHistory() }
-    .onChange(of: trackingEngine.todayWorkDay?.hasMixedLocations) { _ in reloadHistory() }
-    .onChange(of: meetingSync.revision) { _ in reloadHistory() }
+    .onChange(of: trackingEngine.todayWorkDay?.endedAt) { _, _ in reloadHistory() }
+    .onChange(of: trackingEngine.todayWorkDay?.startedAt) { _, _ in reloadHistory() }
+    .onChange(of: trackingEngine.todayWorkDay?.mode) { _, _ in reloadHistory() }
+    .onChange(of: trackingEngine.todayWorkDay?.hasMixedLocations) { _, _ in reloadHistory() }
+    .onChange(of: meetingSync.revision) { _, _ in reloadHistory() }
     .onReceive(ticker) { t in
       now = t
     }

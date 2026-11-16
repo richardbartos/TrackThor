@@ -109,11 +109,7 @@ final class MeetingSync: ObservableObject {
 
   func requestAccess() async {
     do {
-      if #available(macOS 14.0, *) {
-        _ = try await store.requestFullAccessToEvents()
-      } else {
-        _ = try await store.requestAccess(to: .event)
-      }
+      _ = try await store.requestFullAccessToEvents()
     } catch {
       NSLog("TrackThor: calendar access request failed: \(error)")
     }
@@ -347,14 +343,11 @@ final class MeetingSync: ObservableObject {
     switch status {
     case .notDetermined:
       return .notDetermined
-    case .restricted, .denied:
-      return .denied
-    default:
-      if #available(macOS 14.0, *) {
-        // .writeOnly can't read events.
-        return status == .fullAccess ? .granted : .denied
-      }
+    case .fullAccess:
       return .granted
+    default:
+      // .denied, .restricted, and .writeOnly (can't read events).
+      return .denied
     }
   }
 

@@ -107,7 +107,7 @@ struct SettingsView: View {
         }
 
         if location.status == .denied || location.status == .restricted {
-          settingsHint("Location permission is required to read the current Wi-Fi network name on macOS 13+.")
+          settingsHint("Location permission is required to read the current Wi-Fi network name.")
         }
       }
     }

@@ -13,9 +13,11 @@
 		A1B2C3D4E5F6010203040510 /* TrackingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040511 /* TrackingEngine.swift */; };
 		A1B2C3D4E5F6010203040512 /* WiFiMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040513 /* WiFiMonitor.swift */; };
 		A1B2C3D4E5F6010203040514 /* ScreenMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040515 /* ScreenMonitor.swift */; };
+		A1B2C3D4E5F6010203040516 /* MeetingSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040517 /* MeetingSync.swift */; };
 		A1B2C3D4E5F6010203040520 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040521 /* DatabaseManager.swift */; };
 		A1B2C3D4E5F6010203040522 /* WorkDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040523 /* WorkDay.swift */; };
 		A1B2C3D4E5F6010203040524 /* Gap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040525 /* Gap.swift */; };
+		A1B2C3D4E5F6010203040526 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040527 /* Meeting.swift */; };
 		A1B2C3D4E5F6010203040530 /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040531 /* PopoverView.swift */; };
 		A1B2C3D4E5F6010203040532 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040533 /* TodayView.swift */; };
 		A1B2C3D4E5F6010203040534 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040535 /* HistoryView.swift */; };
@@ -27,13 +29,11 @@
 		A1B2C3D4E5F6010203040552 /* DateFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040553 /* DateFormatting.swift */; };
 		A1B2C3D4E5F6010203040554 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040555 /* AppSettings.swift */; };
 		A1B2C3D4E5F6010203040556 /* LocationPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040557 /* LocationPermissionManager.swift */; };
+		A1B2C3D4E5F6010203040558 /* IntervalMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040559 /* IntervalMath.swift */; };
 		A1B2C3D4E5F6010203040600 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F6010203040601 /* GRDB */; };
 		A1B2C3D4E5F6010203040610 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040611 /* CoreWLAN.framework */; };
 		A1B2C3D4E5F6010203040612 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040613 /* CoreLocation.framework */; };
 		A1B2C3D4E5F6010203040614 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040615 /* ServiceManagement.framework */; };
-		A1B2C3D4E5F6010203040516 /* MeetingSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040517 /* MeetingSync.swift */; };
-		A1B2C3D4E5F6010203040526 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040527 /* Meeting.swift */; };
-		A1B2C3D4E5F6010203040558 /* IntervalMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040559 /* IntervalMath.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,9 +44,11 @@
 		A1B2C3D4E5F6010203040511 /* TrackingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingEngine.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040513 /* WiFiMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiMonitor.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040515 /* ScreenMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenMonitor.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040517 /* MeetingSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingSync.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040521 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040523 /* WorkDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkDay.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040525 /* Gap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gap.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040527 /* Meeting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meeting.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040531 /* PopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040533 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040535 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
@@ -58,13 +60,11 @@
 		A1B2C3D4E5F6010203040553 /* DateFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatting.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040555 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040557 /* LocationPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPermissionManager.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040559 /* IntervalMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntervalMath.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6010203040611 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
 		A1B2C3D4E5F6010203040613 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		A1B2C3D4E5F6010203040615 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 		A1B2C3D4E5F6010203040700 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A1B2C3D4E5F6010203040517 /* MeetingSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingSync.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6010203040527 /* Meeting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meeting.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6010203040559 /* IntervalMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntervalMath.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,7 +219,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1600;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 2720;
 				TargetAttributes = {
 					A1B2C3D4E5F6010203041000 = {
 						CreatedOnToolsVersion = 16.0;
@@ -298,6 +298,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -306,7 +307,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.local.trackthor;
 				PRODUCT_NAME = TrackThor;
 				SWIFT_VERSION = 5.0;
@@ -322,6 +323,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -330,7 +332,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.local.trackthor;
 				PRODUCT_NAME = TrackThor;
 				SWIFT_VERSION = 5.0;
@@ -341,6 +343,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -371,7 +374,10 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -389,6 +395,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -397,6 +404,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -427,8 +435,10 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -439,6 +449,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};

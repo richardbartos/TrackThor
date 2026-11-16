@@ -198,13 +198,13 @@ struct StatsView: View {
       reloadTask = nil
       gapsTask = nil
     }
-    .onChange(of: selectedDate) { _ in loadDayDetails() }
-    .onChange(of: settings.minimumVisibleGapMinutes) { _ in loadDayDetails() }
-    .onChange(of: meetingSync.revision) { _ in reloadData(selectLatestIfNeeded: false) }
-    .onChange(of: trackingEngine.todayWorkDay?.startedAt) { _ in reloadData(selectLatestIfNeeded: false) }
-    .onChange(of: trackingEngine.todayWorkDay?.endedAt) { _ in reloadData(selectLatestIfNeeded: false) }
-    .onChange(of: trackingEngine.todayWorkDay?.mode) { _ in reloadData(selectLatestIfNeeded: false) }
-    .onChange(of: trackingEngine.todayWorkDay?.hasMixedLocations) { _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: selectedDate) { _, _ in loadDayDetails() }
+    .onChange(of: settings.minimumVisibleGapMinutes) { _, _ in loadDayDetails() }
+    .onChange(of: meetingSync.revision) { _, _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: trackingEngine.todayWorkDay?.startedAt) { _, _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: trackingEngine.todayWorkDay?.endedAt) { _, _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: trackingEngine.todayWorkDay?.mode) { _, _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: trackingEngine.todayWorkDay?.hasMixedLocations) { _, _ in reloadData(selectLatestIfNeeded: false) }
     .onReceive(ticker) { t in
       now = t
     }
