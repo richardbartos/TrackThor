@@ -8,6 +8,9 @@ struct SettingsView: View {
   @StateObject private var location = LocationPermissionManager()
 
   @ObservedObject var wifiMonitor: WiFiMonitor
+  @ObservedObject var meetingSync: MeetingSync
+  /// The permission prompt deactivates the app (it's a menu bar app), so the window must be brought back.
+  let bringToFront: () -> Void
 
   @State private var newSSID: String = ""
 
@@ -15,6 +18,7 @@ struct SettingsView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 18) {
         networkCard
+        meetingsCard
         gapCard
         launchCard
       }
@@ -26,10 +30,12 @@ struct SettingsView: View {
     .onAppear {
       location.requestIfNeeded()
       settings.refreshLaunchAtLoginStatus()
+      meetingSync.refreshAccess()
     }
     // The Settings window is reused, so onAppear only fires once; refresh whenever it comes forward.
     .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
       settings.refreshLaunchAtLoginStatus()
+      meetingSync.refreshAccess()
     }
   }
 
@@ -101,10 +107,100 @@ struct SettingsView: View {
         }
 
         if location.status == .denied || location.status == .restricted {
-          settingsHint("Location permission is required to read the current Wi-Fi network name on macOS 13+.")
+          settingsHint("Location permission is required to read the current Wi-Fi network name.")
         }
       }
     }
+  }
+
+  private var meetingsCard: some View {
+    settingsCard(title: "Meetings", subtitle: "Measure how much of your work day you spend in meetings.") {
+      VStack(alignment: .leading, spacing: 12) {
+        switch meetingSync.access {
+        case .notDetermined:
+          settingGroup(
+            title: "Calendar Access",
+            detail: "TrackThor reads events from the macOS Calendar app. Add Google accounts in System Settings → Internet Accounts."
+          ) {
+            Button("Allow Calendar Access") {
+              Task {
+                await meetingSync.requestAccess()
+                bringToFront()
+              }
+            }
+            .buttonStyle(.borderedProminent)
+          }
+
+        case .denied:
+          settingsHint("Calendar access is turned off. Enable TrackThor in System Settings → Privacy & Security → Calendars.")
+          Button("Open Privacy Settings") {
+            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars") {
+              NSWorkspace.shared.open(url)
+            }
+          }
+          .buttonStyle(.bordered)
+
+        case .granted:
+          settingGroup(title: "Calendars", detail: "Only events from the calendars you tick count as meetings.") {
+            if meetingSync.calendars.isEmpty {
+              settingsHint("No calendars found. Add your account in System Settings → Internet Accounts.")
+            } else {
+              VStack(spacing: 6) {
+                ForEach(meetingSync.calendars) { calendar in
+                  calendarRow(calendar)
+                }
+              }
+            }
+          }
+
+          settingsHint(
+            settings.meetingCalendarIDs.isEmpty
+              ? "Tick your work calendar to start tracking meetings."
+              : "A meeting is a timed event with at least one other attendee that you haven't declined. All-day events are ignored. Changing the selection recalculates past days."
+          )
+        }
+      }
+    }
+  }
+
+  private func calendarRow(_ calendar: MeetingSync.CalendarOption) -> some View {
+    // The checkbox aligns with the label's first line, so keep the color dot on that line too.
+    Toggle(isOn: calendarSelectionBinding(calendar.id)) {
+      VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: 6) {
+          Circle()
+            .fill(Color(nsColor: calendar.color))
+            .frame(width: 9, height: 9)
+          Text(calendar.title)
+            .font(.system(size: 13, weight: .medium))
+        }
+        Text(calendar.sourceTitle)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .padding(.leading, 15)
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    .toggleStyle(.checkbox)
+    .padding(.vertical, 6)
+    .padding(.horizontal, 10)
+    .background(Color.white.opacity(0.72))
+    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    .overlay(
+      RoundedRectangle(cornerRadius: 10, style: .continuous)
+        .stroke(Color.black.opacity(0.05), lineWidth: 1)
+    )
+  }
+
+  private func calendarSelectionBinding(_ id: String) -> Binding<Bool> {
+    Binding(
+      get: { settings.meetingCalendarIDs.contains(id) },
+      set: { isOn in
+        var ids = settings.meetingCalendarIDs.filter { $0 != id }
+        if isOn { ids.append(id) }
+        settings.meetingCalendarIDs = ids.sorted()
+      }
+    )
   }
 
   private var launchCard: some View {

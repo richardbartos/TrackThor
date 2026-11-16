@@ -2,6 +2,8 @@ import SwiftUI
 
 struct HistoryView: View {
   let history: [WorkDay]
+  let meetingsByDay: [String: [Meeting]]
+  let showMeetings: Bool
   let now: Date
 
   var body: some View {
@@ -18,6 +20,10 @@ struct HistoryView: View {
             Text(row.detail)
               .foregroundStyle(row.isEmpty ? .secondary : .primary)
             Spacer()
+            if showMeetings, let meetingText = row.meetingText {
+              Label(meetingText, systemImage: "person.2.fill")
+                .foregroundStyle(.secondary)
+            }
             Text(row.modeIcon)
               .foregroundStyle(.secondary)
           }
@@ -47,21 +53,27 @@ struct HistoryView: View {
       let wd = byDate[key]
       let label = cal.shortWeekdaySymbols[cal.component(.weekday, from: date) - 1]
       if let wd {
-        let startT = DateFormatting.timeFormatter.string(from: wd.startedAt)
-        let spanEnd = effectiveEnd(for: wd)
-        let endT = DateFormatting.timeFormatter.string(from: spanEnd)
-        let duration = DurationFormatter.hoursMinutesRoundedUpToMinute(
-          max(0, spanEnd.timeIntervalSince(DateFormatting.floorToMinute(wd.startedAt)))
+        let metrics = DayMetrics(
+          tracked: IntervalMath.make(DateFormatting.floorToMinute(wd.startedAt), effectiveEnd(for: wd)),
+          visibleGaps: [],
+          meetings: showMeetings ? (meetingsByDay[key] ?? []).map(\.interval) : [],
+          limit: min(now, cal.date(byAdding: .day, value: 1, to: date) ?? now)
         )
+        let startT = DateFormatting.timeFormatter.string(from: metrics.span.start)
+        let endT = DateFormatting.timeFormatter.string(from: metrics.span.end)
+        let duration = DurationFormatter.hoursMinutesRoundedUpToMinute(metrics.total)
         let modeIcon: String
         if wd.hasMixedLocations {
           modeIcon = "🔀"
         } else {
           modeIcon = wd.mode == .manual ? "🏠" : "🏢"
         }
-        return Row(dateKey: key, label: label, detail: "\(startT) → \(endT)  \(duration)", modeIcon: modeIcon, isEmpty: false)
+        let meetingText = metrics.meetingTime > 0
+          ? DurationFormatter.hoursMinutes(metrics.meetingTime)
+          : nil
+        return Row(dateKey: key, label: label, detail: "\(startT) → \(endT)  \(duration)", meetingText: meetingText, modeIcon: modeIcon, isEmpty: false)
       } else {
-        return Row(dateKey: key, label: label, detail: "—", modeIcon: "", isEmpty: true)
+        return Row(dateKey: key, label: label, detail: "—", meetingText: nil, modeIcon: "", isEmpty: true)
       }
     }
   }
@@ -70,6 +82,7 @@ struct HistoryView: View {
     let dateKey: String
     let label: String
     let detail: String
+    let meetingText: String?
     let modeIcon: String
     let isEmpty: Bool
   }

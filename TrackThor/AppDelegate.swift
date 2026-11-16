@@ -30,8 +30,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     screenMonitor: screenMonitor
   )
 
+  private lazy var meetingSync = MeetingSync(settings: settings, database: databaseManager)
+
   private lazy var statsWindowController = StatsWindowController(
     trackingEngine: trackingEngine,
+    meetingSync: meetingSync,
     database: databaseManager,
     settings: settings
   )
@@ -53,7 +56,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       button.image = isActive ? self.activeStatusImage : nil
       button.imagePosition = isActive ? .imageLeading : .noImage
     }
+    trackingEngine.meetingIntervalsProvider = { [weak self] in
+      self?.meetingSync.todayMeetingIntervals ?? []
+    }
     trackingEngine.start()
+    meetingSync.start()
 
     Task { @MainActor in
       terminateOtherRunningInstances()
@@ -62,6 +69,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
   func applicationWillTerminate(_ notification: Notification) {
     trackingEngine.stop()
+    meetingSync.stop()
   }
 
   @objc private func togglePopover(_ sender: Any?) {
@@ -90,14 +98,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     let root = PopoverView(
       trackingEngine: trackingEngine,
+      meetingSync: meetingSync,
       database: databaseManager,
       onOpenStats: { [weak self] in self?.openStats() },
       onOpenSettings: { [weak self] in self?.openSettings() },
       onQuit: { NSApp.terminate(nil) }
     )
     .environmentObject(settings)
+    .frame(width: 340)
 
-    popover.contentViewController = NSHostingController(rootView: root)
+    // Size the popover to its content (the meetings line is only shown when configured).
+    let controller = NSHostingController(rootView: root)
+    controller.sizingOptions = [.preferredContentSize]
+    popover.contentViewController = controller
   }
 
   private func openStats() {
@@ -123,7 +136,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     window.title = "Settings"
     window.center()
     window.isReleasedWhenClosed = false
-    window.contentView = NSHostingView(rootView: SettingsView(wifiMonitor: wifiMonitor).environmentObject(settings))
+    window.contentView = NSHostingView(rootView: SettingsView(
+      wifiMonitor: wifiMonitor,
+      meetingSync: meetingSync,
+      bringToFront: { [weak self] in self?.openSettings() }
+    ).environmentObject(settings))
     settingsWindow = window
     window.makeKeyAndOrderFront(nil)
     window.orderFrontRegardless()

@@ -8,6 +8,7 @@ final class AppSettings: ObservableObject {
     static let workSSIDs = "workSSIDs"
     static let minimumVisibleGapMinutes = "minimumVisibleGapMinutes"
     static let launchAtLogin = "launchAtLogin"
+    static let meetingCalendarIDs = "meetingCalendarIDs"
   }
 
   @Published var workSSIDs: [String] {
@@ -21,6 +22,11 @@ final class AppSettings: ObservableObject {
     }
   }
 
+  /// EventKit calendar identifiers whose events count as meetings.
+  @Published var meetingCalendarIDs: [String] {
+    didSet { UserDefaults.standard.set(meetingCalendarIDs, forKey: Keys.meetingCalendarIDs) }
+  }
+
   @Published var minimumVisibleGapMinutes: Int {
     didSet { UserDefaults.standard.set(minimumVisibleGapMinutes, forKey: Keys.minimumVisibleGapMinutes) }
   }
@@ -30,6 +36,7 @@ final class AppSettings: ObservableObject {
 
   init() {
     self.workSSIDs = UserDefaults.standard.stringArray(forKey: Keys.workSSIDs) ?? []
+    self.meetingCalendarIDs = UserDefaults.standard.stringArray(forKey: Keys.meetingCalendarIDs) ?? []
     if let storedMinimumGap = UserDefaults.standard.object(forKey: Keys.minimumVisibleGapMinutes) as? Int {
       self.minimumVisibleGapMinutes = max(1, storedMinimumGap)
     } else {

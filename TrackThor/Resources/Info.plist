@@ -21,9 +21,11 @@
   <key>CFBundleVersion</key>
   <string>1</string>
   <key>LSMinimumSystemVersion</key>
-  <string>13.0</string>
+  <string>14.0</string>
   <key>LSUIElement</key>
   <true/>
+  <key>NSCalendarsFullAccessUsageDescription</key>
+  <string>TrackThor reads your calendar to measure how much of your work day you spend in meetings.</string>
   <key>NSLocationWhenInUseUsageDescription</key>
   <string>Location access is needed to read your WiFi network name to detect when you're at the office.</string>
 </dict>

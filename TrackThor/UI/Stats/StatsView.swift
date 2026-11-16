@@ -5,11 +5,14 @@ import SwiftUI
 struct StatsView: View {
   @EnvironmentObject private var settings: AppSettings
   @ObservedObject var trackingEngine: TrackingEngine
+  @ObservedObject var meetingSync: MeetingSync
   let database: DatabaseManager
 
   @State private var workDays: [WorkDay] = []
   @State private var selectedDate: Date?
   @State private var gaps: [Gap] = []
+  /// All stored meetings, keyed by day; the day list needs them too (meetings extend a day).
+  @State private var meetingsByDay: [String: [Meeting]] = [:]
   @State private var now: Date = Date()
   @State private var dayPendingDeletion: WorkDay?
   @State private var reloadTask: Task<Void, Never>?
@@ -30,24 +33,36 @@ struct StatsView: View {
             header
 
             if let day = selectedDay {
-              let effectiveEndRaw = effectiveEnd(for: day)
-              let endDisplay = DateFormatting.floorToMinute(effectiveEndRaw)
+              let metrics = dayMetrics(for: day, visibleGaps: gaps)
+              let showMeetings = meetingSync.isConfigured
 
               VStack(alignment: .leading, spacing: 12) {
                 statsSection(
                   title: "Duration",
-                  detail: "Total is start to finish. Active subtracts visible gaps."
+                  detail: showMeetings
+                    ? "Total is start to finish. Active subtracts visible gaps, but time in meetings always counts as active. Focus is active time outside meetings."
+                    : "Total is start to finish. Active subtracts visible gaps."
                 ) {
                   VStack(spacing: 6) {
                     durationRow(
                       label: "Total time",
-                      value: totalDurationText(for: day, endRaw: effectiveEndRaw),
+                      value: DurationFormatter.hoursMinutesRoundedUpToMinute(metrics.total),
                       isEmphasized: true
                     )
                     durationRow(
                       label: "Active sessions",
-                      value: activeDurationText(for: day, endRaw: effectiveEndRaw)
+                      value: DurationFormatter.hoursMinutesRoundedUpToMinute(metrics.activeTime)
                     )
+                    if showMeetings {
+                      durationRow(
+                        label: "Meetings",
+                        value: metrics.meetingSummary
+                      )
+                      durationRow(
+                        label: "Focus time",
+                        value: metrics.focusSummary
+                      )
+                    }
                   }
                 }
 
@@ -56,7 +71,7 @@ struct StatsView: View {
                   detail: "Overview for the selected work day."
                 ) {
                   HStack(alignment: .top) {
-                    Text(summaryLine(for: day, endDisplay: endDisplay, endRaw: effectiveEndRaw))
+                    Text(summaryLine(for: day, metrics: metrics))
                       .font(.system(size: 15, weight: .semibold))
 
                     Spacer()
@@ -69,13 +84,11 @@ struct StatsView: View {
 
                 statsSection(
                   title: "Timeline",
-                  detail: "Green segments are active work. Gray segments are visible gaps."
+                  detail: showMeetings
+                    ? "Green is active work, indigo is meetings, gray is visible gaps."
+                    : "Green segments are active work. Gray segments are visible gaps."
                 ) {
-                  TimelineBar(
-                    startedAt: day.startedAt,
-                    endedAt: effectiveEndRaw,
-                    gaps: gaps
-                  )
+                  TimelineBar(metrics: metrics)
                   .frame(height: 22)
                   .padding(10)
                   .background(Color.white.opacity(0.72))
@@ -88,26 +101,50 @@ struct StatsView: View {
                   HStack(spacing: 14) {
                     Label("Active", systemImage: "square.fill")
                       .labelStyle(.titleOnly)
-                      .foregroundStyle(.green)
+                      .foregroundStyle(TimelineBar.activeColor)
+                    if showMeetings {
+                      Label("Meeting", systemImage: "square.fill")
+                        .labelStyle(.titleOnly)
+                        .foregroundStyle(TimelineBar.meetingColor)
+                    }
                     Label("Gap", systemImage: "square.fill")
                       .labelStyle(.titleOnly)
-                      .foregroundStyle(.gray)
+                      .foregroundStyle(TimelineBar.gapColor)
                   }
                   .font(.caption)
                 }
 
+                if showMeetings {
+                  statsSection(
+                    title: "Meetings",
+                    detail: "From your selected calendars. They count even when you were away from the Mac."
+                  ) {
+                    if meetings.isEmpty {
+                      emptyRow("No meetings")
+                    } else {
+                      VStack(spacing: 6) {
+                        ForEach(meetings) { meeting in
+                          meetingRow(meeting, span: metrics.span)
+                        }
+                      }
+                    }
+                  }
+                }
+
                 statsSection(
                   title: "Gaps",
-                  detail: "Only gaps longer than the configured threshold are shown."
+                  detail: showMeetings
+                    ? "Only gaps longer than the configured threshold are shown. Time covered by meetings isn't a gap."
+                    : "Only gaps longer than the configured threshold are shown."
                 ) {
-                  if gaps.isEmpty {
+                  if metrics.gaps.isEmpty {
                     emptyRow("No visible gaps")
                   } else {
                     VStack(spacing: 6) {
-                      ForEach(gaps) { gap in
-                        let s = DateFormatting.timeFormatter.string(from: gap.startedAt)
-                        let e = DateFormatting.timeFormatter.string(from: gap.endedAt)
-                        let d = DurationFormatter.hoursMinutes(gap.endedAt.timeIntervalSince(gap.startedAt))
+                      ForEach(metrics.gaps, id: \.start) { gap in
+                        let s = DateFormatting.timeFormatter.string(from: gap.start)
+                        let e = DateFormatting.timeFormatter.string(from: gap.end)
+                        let d = DurationFormatter.hoursMinutes(gap.duration)
                         HStack {
                           Text("\(s) – \(e)")
                           Spacer()
@@ -161,12 +198,13 @@ struct StatsView: View {
       reloadTask = nil
       gapsTask = nil
     }
-    .onChange(of: selectedDate) { _ in loadGaps() }
-    .onChange(of: settings.minimumVisibleGapMinutes) { _ in loadGaps() }
-    .onChange(of: trackingEngine.todayWorkDay?.startedAt) { _ in reloadData(selectLatestIfNeeded: false) }
-    .onChange(of: trackingEngine.todayWorkDay?.endedAt) { _ in reloadData(selectLatestIfNeeded: false) }
-    .onChange(of: trackingEngine.todayWorkDay?.mode) { _ in reloadData(selectLatestIfNeeded: false) }
-    .onChange(of: trackingEngine.todayWorkDay?.hasMixedLocations) { _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: selectedDate) { _, _ in loadDayDetails() }
+    .onChange(of: settings.minimumVisibleGapMinutes) { _, _ in loadDayDetails() }
+    .onChange(of: meetingSync.revision) { _, _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: trackingEngine.todayWorkDay?.startedAt) { _, _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: trackingEngine.todayWorkDay?.endedAt) { _, _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: trackingEngine.todayWorkDay?.mode) { _, _ in reloadData(selectLatestIfNeeded: false) }
+    .onChange(of: trackingEngine.todayWorkDay?.hasMixedLocations) { _, _ in reloadData(selectLatestIfNeeded: false) }
     .onReceive(ticker) { t in
       now = t
     }
@@ -368,10 +406,10 @@ struct StatsView: View {
   }
 
   private func dayRailDetail(for day: WorkDay) -> String {
-    let end = effectiveEnd(for: day)
-    let duration = totalDurationText(for: day, endRaw: end)
-    let start = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(day.startedAt))
-    let finish = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(end))
+    let metrics = dayMetrics(for: day, visibleGaps: [])
+    let duration = DurationFormatter.hoursMinutesRoundedUpToMinute(metrics.total)
+    let start = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(metrics.span.start))
+    let finish = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(metrics.span.end))
     return "\(start) → \(finish)  •  \(duration)"
   }
 
@@ -459,9 +497,9 @@ struct StatsView: View {
     return workDays[index + 1]
   }
 
-  private func summaryLine(for day: WorkDay, endDisplay: Date, endRaw: Date) -> String {
-    let start = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(day.startedAt))
-    let end = DateFormatting.timeFormatter.string(from: endDisplay)
+  private func summaryLine(for day: WorkDay, metrics: DayMetrics) -> String {
+    let start = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(metrics.span.start))
+    let end = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(metrics.span.end))
     let mode: String
     if day.hasMixedLocations {
       mode = "🔀 Home + Office"
@@ -471,17 +509,52 @@ struct StatsView: View {
     return "\(start) → \(end)  ·  \(mode)"
   }
 
-  private func totalDurationText(for day: WorkDay, endRaw: Date) -> String {
-    let spanSeconds = max(0, endRaw.timeIntervalSince(DateFormatting.floorToMinute(day.startedAt)))
-    return DurationFormatter.hoursMinutesRoundedUpToMinute(spanSeconds)
+  private var meetings: [Meeting] {
+    guard let selectedDay else { return [] }
+    return meetingsByDay[dayKey(for: selectedDay.date)] ?? []
   }
 
-  private func activeDurationText(for day: WorkDay, endRaw: Date) -> String {
-    let gapDuration = gaps.reduce(into: 0) { total, gap in
-      total += gap.endedAt.timeIntervalSince(gap.startedAt)
+  private func dayMetrics(for day: WorkDay, visibleGaps: [Gap]) -> DayMetrics {
+    let dayStart = normalizedDay(day.date)
+    let dayEnd = Calendar.current.date(byAdding: .day, value: 1, to: dayStart) ?? now
+    let dayMeetings = meetingSync.isConfigured ? (meetingsByDay[dayKey(for: day.date)] ?? []) : []
+    return DayMetrics(
+      tracked: IntervalMath.make(DateFormatting.floorToMinute(day.startedAt), effectiveEnd(for: day)),
+      visibleGaps: visibleGaps.map(\.interval),
+      meetings: dayMeetings.map(\.interval),
+      limit: min(now, dayEnd),
+      minimumGap: settings.minimumVisibleGapDuration
+    )
+  }
+
+  private func meetingRow(_ meeting: Meeting, span: DateInterval) -> some View {
+    let start = DateFormatting.timeFormatter.string(from: meeting.startedAt)
+    let end = DateFormatting.timeFormatter.string(from: meeting.endedAt)
+    let counted = IntervalMath.total(IntervalMath.clip([meeting.interval], to: span))
+    let isOutside = counted <= 0
+
+    return HStack(alignment: .center, spacing: 10) {
+      VStack(alignment: .leading, spacing: 2) {
+        Text(meeting.title)
+          .lineLimit(1)
+        Text(isOutside ? "\(start) – \(end) · upcoming" : "\(start) – \(end)")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+      Spacer()
+      Text(DurationFormatter.hoursMinutes(meeting.interval.duration))
+        .foregroundStyle(.secondary)
     }
-    let spanSeconds = max(0, endRaw.timeIntervalSince(DateFormatting.floorToMinute(day.startedAt)) - gapDuration)
-    return DurationFormatter.hoursMinutesRoundedUpToMinute(spanSeconds)
+    .font(.system(size: 13))
+    .opacity(isOutside ? 0.55 : 1)
+    .padding(.vertical, 7)
+    .padding(.horizontal, 10)
+    .background(Color.white.opacity(0.72))
+    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    .overlay(
+      RoundedRectangle(cornerRadius: 10, style: .continuous)
+        .stroke(Color.black.opacity(0.05), lineWidth: 1)
+    )
   }
 
   private func effectiveEnd(for day: WorkDay) -> Date {
@@ -507,14 +580,17 @@ struct StatsView: View {
     reloadTask?.cancel()
     reloadTask = Task {
       do {
-        let loadedDays = try await Task.detached(priority: .utility) {
+        let (loadedDays, loadedMeetings) = try await Task.detached(priority: .utility) {
           try dbQueue.read { db in
-            try WorkDay.order(WorkDay.Columns.date.asc).fetchAll(db)
+            let days = try WorkDay.order(WorkDay.Columns.date.asc).fetchAll(db)
+            let meetings = try Meeting.order(Meeting.Columns.startedAt.asc).fetchAll(db)
+            return (days, meetings)
           }
         }.value
 
         guard !Task.isCancelled else { return }
         workDays = loadedDays
+        meetingsByDay = Dictionary(grouping: loadedMeetings) { dayKey(for: $0.date) }
 
         if workDays.isEmpty {
           selectedDate = nil
@@ -530,7 +606,7 @@ struct StatsView: View {
           selectedDate = workDays.last?.date
         }
 
-        loadGaps()
+        loadDayDetails()
       } catch {
         guard !Task.isCancelled else { return }
         workDays = []
@@ -583,7 +659,7 @@ struct StatsView: View {
     }
   }
 
-  private func loadGaps() {
+  private func loadDayDetails() {
     guard let day = selectedDay, let id = day.id else {
       gaps = []
       return

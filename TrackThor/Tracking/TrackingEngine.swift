@@ -24,6 +24,8 @@ final class TrackingEngine: ObservableObject {
   @Published private(set) var isAutoActive: Bool = false
 
   var onStatusChanged: ((String, Bool) -> Void)?
+  /// Today's calendar meetings; they extend the day shown in the menu bar (meetings always count).
+  var meetingIntervalsProvider: (@MainActor () -> [DateInterval])?
 
   private let database: DatabaseManager
   private let settings: AppSettings
@@ -679,14 +681,16 @@ final class TrackingEngine: ObservableObject {
   private func updateStatusTitle() {
     let title: String
     if let day = todayWorkDay {
-      let start = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(day.startedAt))
-      if let end = day.endedAt {
-        let endString = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(end))
-        title = prefix(for: day) + "\(start) → \(endString)"
-      } else {
-        let endString = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(Date()))
-        title = prefix(for: day) + "\(start) → \(endString)"
-      }
+      let now = Date()
+      let metrics = DayMetrics(
+        tracked: IntervalMath.make(DateFormatting.floorToMinute(day.startedAt), day.endedAt ?? now),
+        visibleGaps: [],
+        meetings: meetingIntervalsProvider?() ?? [],
+        limit: now
+      )
+      let start = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(metrics.span.start))
+      let end = DateFormatting.timeFormatter.string(from: DateFormatting.floorToMinute(metrics.span.end))
+      title = prefix(for: day) + "\(start) → \(end)"
     } else {
       title = "--:--"
     }

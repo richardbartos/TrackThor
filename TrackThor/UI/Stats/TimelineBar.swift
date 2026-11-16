@@ -1,59 +1,37 @@
 import SwiftUI
 
 struct TimelineBar: View {
-  let startedAt: Date
-  let endedAt: Date
-  let gaps: [Gap]
+  let metrics: DayMetrics
+
+  static let activeColor = Color.green
+  static let gapColor = Color.gray
+  static let meetingColor = Color.indigo
 
   var body: some View {
-    GeometryReader { geo in
-      Canvas { context, size in
-        let total = max(1, endedAt.timeIntervalSince(startedAt))
-        let height = size.height
-        let radius: CGFloat = 5
+    Canvas { context, size in
+      let span = metrics.span
+      let total = max(1, span.duration)
 
-        let segments = buildSegments()
-        var x: CGFloat = 0
-        for seg in segments {
-          let w = CGFloat(seg.duration / total) * size.width
-          let rect = CGRect(x: x, y: 0, width: w, height: height)
-          let path = Path(roundedRect: rect, cornerRadius: radius)
-          context.fill(path, with: .color(seg.kind == .active ? .green : .gray))
-          x += w
-        }
+      for segment in segments() {
+        let x = CGFloat(segment.interval.start.timeIntervalSince(span.start) / total) * size.width
+        let width = CGFloat(segment.interval.duration / total) * size.width
+        let rect = CGRect(x: x, y: 0, width: width, height: size.height)
+        context.fill(Path(roundedRect: rect, cornerRadius: 5), with: .color(segment.color))
       }
     }
   }
 
-  private enum Kind { case active, gap }
   private struct Segment {
-    let kind: Kind
-    let duration: TimeInterval
+    let interval: DateInterval
+    let color: Color
   }
 
-  private func buildSegments() -> [Segment] {
-    let clampedGaps = gaps
-      .map { (max($0.startedAt, startedAt), min($0.endedAt, endedAt)) }
-      .filter { $0.1 > $0.0 }
-      .sorted { $0.0 < $1.0 }
-
-    if clampedGaps.isEmpty {
-      return [Segment(kind: .active, duration: endedAt.timeIntervalSince(startedAt))]
-    }
-
-    var segs: [Segment] = []
-    var cursor = startedAt
-    for (gs, ge) in clampedGaps {
-      if gs > cursor {
-        segs.append(Segment(kind: .active, duration: gs.timeIntervalSince(cursor)))
-      }
-      segs.append(Segment(kind: .gap, duration: ge.timeIntervalSince(gs)))
-      cursor = ge
-    }
-    if cursor < endedAt {
-      segs.append(Segment(kind: .active, duration: endedAt.timeIntervalSince(cursor)))
-    }
-    return segs
+  /// Meetings take precedence over gaps (they fill them); everything else in the span is active.
+  private func segments() -> [Segment] {
+    let active = IntervalMath.subtract([metrics.span], metrics.meetings + metrics.gaps)
+    let all = active.map { Segment(interval: $0, color: Self.activeColor) }
+      + metrics.gaps.map { Segment(interval: $0, color: Self.gapColor) }
+      + metrics.meetings.map { Segment(interval: $0, color: Self.meetingColor) }
+    return all.sorted { $0.interval.start < $1.interval.start }
   }
 }
-

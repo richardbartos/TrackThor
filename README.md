@@ -1,6 +1,6 @@
 # TrackThor
 
-Personal macOS (Ventura+) menu bar app that tracks a work day as a single span, with optional manual (home office) mode. All data is stored locally in SQLite.
+Personal macOS (Sonoma+) menu bar app that tracks a work day as a single span, with optional manual (home office) mode. All data is stored locally in SQLite.
 
 ## Build & run
 
@@ -10,6 +10,6 @@ Personal macOS (Ventura+) menu bar app that tracks a work day as a single span, 
 
 ## Notes
 
-- TrackThor reads the current Wi‑Fi SSID via `CoreWLAN`, which requires Location permission on macOS 13+.
+- TrackThor reads the current Wi‑Fi SSID via `CoreWLAN`, which requires Location permission.
 - Configure your work SSIDs in **Settings**.
 
