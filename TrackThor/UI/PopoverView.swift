@@ -1,3 +1,4 @@
+import Combine
 import GRDB
 import SwiftUI
 
@@ -33,7 +34,10 @@ struct PopoverView: View {
       }
     }
     .padding(14)
-    .onAppear { reloadHistory() }
+    .onAppear {
+      now = Date()
+      reloadHistory()
+    }
     .onDisappear {
       reloadTask?.cancel()
       reloadTask = nil

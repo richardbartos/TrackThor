@@ -1,3 +1,4 @@
+import AppKit
 import CoreLocation
 import ServiceManagement
 import SwiftUI
@@ -6,7 +7,7 @@ struct SettingsView: View {
   @EnvironmentObject private var settings: AppSettings
   @StateObject private var location = LocationPermissionManager()
 
-  let wifiMonitor: WiFiMonitor
+  @ObservedObject var wifiMonitor: WiFiMonitor
 
   @State private var newSSID: String = ""
 
@@ -24,6 +25,11 @@ struct SettingsView: View {
     .background(windowBackground)
     .onAppear {
       location.requestIfNeeded()
+      settings.refreshLaunchAtLoginStatus()
+    }
+    // The Settings window is reused, so onAppear only fires once; refresh whenever it comes forward.
+    .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
+      settings.refreshLaunchAtLoginStatus()
     }
   }
 
@@ -104,11 +110,20 @@ struct SettingsView: View {
   private var launchCard: some View {
     settingsCard(title: "App Behavior", subtitle: "Control how TrackThor starts with macOS.") {
       settingGroup(title: "Startup", detail: "Keep TrackThor available right after login.") {
-        Toggle("Launch at login", isOn: $settings.launchAtLogin)
-          .toggleStyle(.switch)
-          .onChange(of: settings.launchAtLogin) { enabled in
-            setLaunchAtLogin(enabled)
+        VStack(alignment: .leading, spacing: 8) {
+          Toggle("Launch at login", isOn: $settings.launchAtLogin)
+            .toggleStyle(.switch)
+
+          if settings.launchAtLogin && settings.launchAtLoginStatus == .requiresApproval {
+            HStack(spacing: 10) {
+              settingsHint("TrackThor is turned off in System Settings → Login Items.")
+              Button("Open Login Items") {
+                SMAppService.openSystemSettingsLoginItems()
+              }
+              .buttonStyle(.bordered)
+            }
           }
+        }
       }
     }
   }
@@ -237,19 +252,6 @@ struct SettingsView: View {
 
   private func removeSSID(_ ssid: String) {
     settings.workSSIDs.removeAll { $0 == ssid }
-  }
-
-  private func setLaunchAtLogin(_ enabled: Bool) {
-    guard #available(macOS 13.0, *) else { return }
-    do {
-      if enabled {
-        try SMAppService.mainApp.register()
-      } else {
-        try SMAppService.mainApp.unregister()
-      }
-    } catch {
-      // best-effort; keep toggle value stored
-    }
   }
 
   private var minimumVisibleGapMinutesBinding: Binding<Int> {

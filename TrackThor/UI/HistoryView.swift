@@ -30,13 +30,15 @@ struct HistoryView: View {
 
   private var rows: [Row] {
     let cal = Calendar.current
-    let today = cal.startOfDay(for: Date())
+    let today = cal.startOfDay(for: now)
     let weekday = cal.component(.weekday, from: today)
     let daysFromMonday = (weekday + 5) % 7
     let start = cal.date(byAdding: .day, value: -daysFromMonday, to: today)!
 
     let byDate: [String: WorkDay] = Dictionary(
-      uniqueKeysWithValues: history.map { (DateFormatting.dayKeyFormatter.string(from: $0.date), $0) }
+      history.map { (DateFormatting.dayKeyFormatter.string(from: $0.date), $0) },
+      // Rows stored under a different time zone can map to the same local day; don't trap on that.
+      uniquingKeysWith: { first, _ in first }
     )
 
     return (0..<7).compactMap { offset in

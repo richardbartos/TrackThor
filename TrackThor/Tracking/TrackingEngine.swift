@@ -4,12 +4,6 @@ import GRDB
 
 @MainActor
 final class TrackingEngine: ObservableObject {
-  struct TodayStatus {
-    var workDay: WorkDay?
-    var isActive: Bool
-    var mode: WorkDay.Mode?
-  }
-
   private enum TrackingState: Equatable {
     case stopped
     case active(WorkDay.Mode)
@@ -22,17 +16,12 @@ final class TrackingEngine: ObservableObject {
     case manualStart(Date)
     case stop(Date)
     case midnight(Date)
-  }
-
-  struct DaySnapshot: Sendable {
-    var workDay: WorkDay?
-    var gapDuration: TimeInterval
+    case reload(Date)
   }
 
   @Published private(set) var todayWorkDay: WorkDay?
   @Published private(set) var isManualActive: Bool = false
   @Published private(set) var isAutoActive: Bool = false
-  @Published private(set) var todayGapDuration: TimeInterval = 0
 
   var onStatusChanged: ((String, Bool) -> Void)?
 
@@ -77,49 +66,15 @@ final class TrackingEngine: ObservableObject {
     wifiMonitor.start()
     screenMonitor.start()
 
+    // @Published emits on every assignment, and the monitors re-assign their state on each poll.
+    // Only react to real transitions; the 5 s tick covers everything else (idle time, heartbeats).
     cancellables.removeAll()
-    wifiMonitor.$isOnWorkWiFi
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        self?.enqueue(.conditionsChanged(Date()))
-      }
-      .store(in: &cancellables)
-    screenMonitor.$isScreenUnlocked
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] isUnlocked in
-        if isUnlocked {
-          self?.wifiMonitor.refreshAfterWakeOrUnlock()
-        }
-        self?.enqueue(.conditionsChanged(Date()))
-      }
-      .store(in: &cancellables)
-    screenMonitor.$isSystemSleeping
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] isSleeping in
-        if !isSleeping {
-          self?.wifiMonitor.refreshAfterWakeOrUnlock()
-        }
-        self?.enqueue(.conditionsChanged(Date()))
-      }
-      .store(in: &cancellables)
-    screenMonitor.$isDisplaySleeping
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] isDisplaySleeping in
-        if !isDisplaySleeping {
-          self?.wifiMonitor.refreshAfterWakeOrUnlock()
-        }
-        self?.enqueue(.conditionsChanged(Date()))
-      }
-      .store(in: &cancellables)
-    screenMonitor.$isLidClosed
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] isLidClosed in
-        if !isLidClosed {
-          self?.wifiMonitor.refreshAfterWakeOrUnlock()
-        }
-        self?.enqueue(.conditionsChanged(Date()))
-      }
-      .store(in: &cancellables)
+    observe(wifiMonitor.$isOnWorkWiFi, refreshWiFiWhen: nil)
+    observe(screenMonitor.$isScreenUnlocked, refreshWiFiWhen: true)
+    observe(screenMonitor.$isSystemSleeping, refreshWiFiWhen: false)
+    observe(screenMonitor.$isDisplaySleeping, refreshWiFiWhen: false)
+    observe(screenMonitor.$isLidClosed, refreshWiFiWhen: false)
+    observe(screenMonitor.$hasAwakeExternalDisplay, refreshWiFiWhen: true)
 
     statusTask?.cancel()
     statusTask = Task { @MainActor [weak self] in
@@ -146,6 +101,19 @@ final class TrackingEngine: ObservableObject {
     eventTask = nil
   }
 
+  private func observe(_ publisher: Published<Bool>.Publisher, refreshWiFiWhen refreshValue: Bool?) {
+    publisher
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] value in
+        if let refreshValue, value == refreshValue {
+          self?.wifiMonitor.refreshAfterWakeOrUnlock()
+        }
+        self?.enqueue(.conditionsChanged(Date()))
+      }
+      .store(in: &cancellables)
+  }
+
   private func tick() {
     screenMonitor.reconcileCurrentState()
     wifiMonitor.poll()
@@ -159,6 +127,11 @@ final class TrackingEngine: ObservableObject {
 
   func stopTracking() {
     enqueue(.stop(Date()))
+  }
+
+  /// Call after the work_days table was modified outside the engine (e.g. a day was deleted in Stats).
+  func reloadAfterExternalChange() {
+    enqueue(.reload(Date()))
   }
 
   private func enqueue(_ event: TrackingEvent) {
@@ -197,6 +170,9 @@ final class TrackingEngine: ObservableObject {
       await processStop(at: now)
     case .midnight(let boundary):
       await processMidnight(at: boundary)
+    case .reload(let now):
+      await advanceToCurrentDayIfNeeded(at: now)
+      await processReload(at: now)
     }
 
     lastEventAt = eventDate
@@ -213,7 +189,8 @@ final class TrackingEngine: ObservableObject {
          .conditionsChanged(let now),
          .manualStart(let now),
          .stop(let now),
-         .midnight(let now):
+         .midnight(let now),
+         .reload(let now):
       return now
     }
   }
@@ -253,9 +230,9 @@ final class TrackingEngine: ObservableObject {
       _ = await endCurrentDay(at: end, reason: "day-rollover")
     }
 
-    let snapshot = await loadSnapshot(for: now)
-    applySnapshot(snapshot)
-    state = snapshot.workDay.map(derivedState(for:)) ?? carriedMode
+    let loadedDay = await loadWorkDay(for: now)
+    applyWorkDay(loadedDay)
+    state = loadedDay.map(derivedState(for:)) ?? carriedMode
     debugLog.write("day-rollover.loaded now=\(debugDate(now)) carried=\(debugDescription(for: carriedMode)) state=\(debugDescription(for: state)) day=\(debugDescription(for: todayWorkDay))")
 
     scheduleMidnightTimer(after: now)
@@ -263,7 +240,7 @@ final class TrackingEngine: ObservableObject {
 
   private func bootstrap(at now: Date) async {
     await reconcileStaleOpenDays(at: now)
-    applySnapshot(await loadSnapshot(for: now))
+    applyWorkDay(await loadWorkDay(for: now))
     state = derivedState(for: todayWorkDay)
 
     if case .active(let mode) = state,
@@ -353,22 +330,23 @@ final class TrackingEngine: ObservableObject {
     case .gap(.auto):
       if autoConditionsMet && !autoTrackingSuppressed {
         debugLog.write("gap.auto.resume \(conditionSnapshot())")
-        await activateTracking(mode: .auto, at: now)
-        state = .active(.auto)
+        await activate(mode: .auto, at: now)
       }
 
     case .gap(.manual):
-      if conditionsMet(for: .manual) {
+      if autoConditionsMet && !autoTrackingSuppressed {
+        // Paused home-office day, but we're now on work Wi-Fi: continue as office (mixed day).
+        debugLog.write("gap.manual.resume-as-auto \(conditionSnapshot())")
+        await activate(mode: .auto, at: now)
+      } else if conditionsMet(for: .manual) {
         debugLog.write("gap.manual.resume \(conditionSnapshot())")
-        await activateTracking(mode: .manual, at: now)
-        state = .active(.manual)
+        await activate(mode: .manual, at: now)
       }
 
     case .stopped:
       if autoConditionsMet && !autoTrackingSuppressed {
         debugLog.write("stopped.auto-start \(conditionSnapshot())")
-        await activateTracking(mode: .auto, at: now)
-        state = .active(.auto)
+        await activate(mode: .auto, at: now)
       }
     }
 
@@ -386,18 +364,15 @@ final class TrackingEngine: ObservableObject {
 
     case .active(.auto):
       guard await endCurrentDay(at: now, reason: "manual-start-switch") else { return }
-      await activateTracking(mode: .manual, at: now)
-      state = .active(.manual)
-      refreshPublishedActivity()
-      updateStatusTitle()
-      return
+      state = .gap(.auto)
+      await activate(mode: .manual, at: now)
 
     case .gap, .stopped:
-      await activateTracking(mode: .manual, at: now)
-      state = .active(.manual)
-      refreshPublishedActivity()
-      updateStatusTitle()
+      await activate(mode: .manual, at: now)
     }
+
+    refreshPublishedActivity()
+    updateStatusTitle()
   }
 
   private func processStop(at now: Date) async {
@@ -420,13 +395,36 @@ final class TrackingEngine: ObservableObject {
     await processConditionsChanged(at: boundary)
   }
 
-  private func activateTracking(mode: WorkDay.Mode, at now: Date) async {
+  private func processReload(at now: Date) async {
+    let hadDay = todayWorkDay != nil
+    let reloadedDay = await loadWorkDay(for: now)
+    applyWorkDay(reloadedDay)
+
+    if hadDay && reloadedDay == nil {
+      // Today's record was deleted by the user — don't immediately recreate it. Auto tracking
+      // resumes the next time office conditions are lost and regained (same as a manual stop).
+      state = .stopped
+      autoTrackingSuppressed = true
+    }
+    debugLog.write("reload state=\(debugDescription(for: state)) suppressed=\(autoTrackingSuppressed) day=\(debugDescription(for: todayWorkDay))")
+    updateStatusTitle()
+  }
+
+  /// Opens (or reopens) today's day and moves to `.active` only if that actually succeeded.
+  private func activate(mode: WorkDay.Mode, at now: Date) async {
+    if let openMode = await activateTracking(mode: mode, at: now) {
+      state = .active(openMode)
+    }
+  }
+
+  /// Returns the mode of the day that is open afterwards, or nil if no day could be opened.
+  private func activateTracking(mode: WorkDay.Mode, at now: Date) async -> WorkDay.Mode? {
     let calendar = Calendar.current
     let dayStart = calendar.startOfDay(for: now)
     debugLog.write("activate.begin mode=\(mode.rawValue) now=\(debugDate(now)) state=\(debugDescription(for: state)) day=\(debugDescription(for: todayWorkDay))")
 
     if todayWorkDay?.date != dayStart {
-      applySnapshot(await loadSnapshot(for: now))
+      applyWorkDay(await loadWorkDay(for: now))
     }
 
     guard let existingDay = todayWorkDay else {
@@ -448,22 +446,21 @@ final class TrackingEngine: ObservableObject {
           return day
         }
         todayWorkDay = insertedDay
-        todayGapDuration = 0
         debugLog.write("activate.created mode=\(mode.rawValue) day=\(debugDescription(for: insertedDay))")
+        return mode
       } catch {
         debugLog.write("activate.create.error mode=\(mode.rawValue) \(error)")
-        return
+        return nil
       }
-      return
     }
 
     guard existingDay.endedAt != nil else {
       if existingDay.mode == .manual && mode == .auto {
         debugLog.write("activate.ignored open-manual-day auto-request day=\(debugDescription(for: existingDay))")
-        return
+      } else {
+        debugLog.write("activate.ignored already-open mode=\(mode.rawValue) day=\(debugDescription(for: existingDay))")
       }
-      debugLog.write("activate.ignored already-open mode=\(mode.rawValue) day=\(debugDescription(for: existingDay))")
-      return
+      return existingDay.mode
     }
 
     do {
@@ -488,17 +485,12 @@ final class TrackingEngine: ObservableObject {
         try day.update(db)
         return (day: day, insertedGap: willInsertGap, resetStart: willResetStart)
       }
-      if let endedAt = existingDay.endedAt {
-        let duration = max(0, now.timeIntervalSince(endedAt))
-        if duration >= settings.minimumVisibleGapDuration {
-          todayGapDuration += duration
-        }
-      }
       todayWorkDay = result.day
       debugLog.write("activate.reopened mode=\(mode.rawValue) gapStart=\(debugDate(gapStart)) gapDuration=\(Int(gapDuration))s insertedGap=\(result.insertedGap) resetStart=\(result.resetStart) oldDay=\(debugDescription(for: existingDay)) newDay=\(debugDescription(for: result.day))")
+      return mode
     } catch {
       debugLog.write("activate.reopen.error mode=\(mode.rawValue) day=\(debugDescription(for: existingDay)) \(error)")
-      return
+      return nil
     }
   }
 
@@ -595,37 +587,21 @@ final class TrackingEngine: ObservableObject {
     throw TrackingEngineError.missingPersistedWorkDay(date: day.date)
   }
 
-  private func loadSnapshot(for referenceDate: Date) async -> DaySnapshot {
+  private func loadWorkDay(for referenceDate: Date) async -> WorkDay? {
     let dayStart = Calendar.current.startOfDay(for: referenceDate)
-    let visibleGapThreshold = settings.minimumVisibleGapDuration
 
     do {
       return try await readFromDatabase { db in
-        let day = try WorkDay.filter(WorkDay.Columns.date == dayStart).fetchOne(db)
-        guard let day, let workDayId = day.id else {
-          return DaySnapshot(workDay: day, gapDuration: 0)
-        }
-
-        let gaps = try Gap
-          .filter(Gap.Columns.workDayId == workDayId)
-          .fetchAll(db)
-        let totalGapDuration = gaps.reduce(into: 0) { total, gap in
-          let duration = gap.endedAt.timeIntervalSince(gap.startedAt)
-          if duration >= visibleGapThreshold {
-            total += duration
-          }
-        }
-        return DaySnapshot(workDay: day, gapDuration: totalGapDuration)
+        try WorkDay.filter(WorkDay.Columns.date == dayStart).fetchOne(db)
       }
     } catch {
       debugLog.write("snapshot.load.error referenceDate=\(debugDate(referenceDate)) \(error)")
-      return DaySnapshot(workDay: nil, gapDuration: 0)
+      return nil
     }
   }
 
-  private func applySnapshot(_ snapshot: DaySnapshot) {
-    todayWorkDay = snapshot.workDay
-    todayGapDuration = snapshot.gapDuration
+  private func applyWorkDay(_ day: WorkDay?) {
+    todayWorkDay = day
     refreshPublishedActivity()
   }
 
@@ -642,9 +618,14 @@ final class TrackingEngine: ObservableObject {
 
   private func carriedModeAcrossDayBoundary(from state: TrackingState) -> TrackingState {
     switch state {
-    case .active(let mode), .gap(let mode):
+    case .active(let mode):
+      // Working through midnight: continue in the same mode on the new day.
       return .gap(mode)
-    case .stopped:
+    case .gap(.auto):
+      return .gap(.auto)
+    case .gap(.manual), .stopped:
+      // A paused home-office day must not silently restart the next morning
+      // (it would also block office auto-tracking for the whole day).
       return .stopped
     }
   }
@@ -664,20 +645,24 @@ final class TrackingEngine: ObservableObject {
 
     switch mode {
     case .manual:
-      return screenMonitor.isScreenUnlocked && !screenMonitor.isSystemSleeping && !screenMonitor.isDisplaySleeping && !screenMonitor.isLidClosed && isPresent
+      return screenMonitor.isScreenUnlocked && !screenMonitor.isSystemSleeping && !screenMonitor.isDisplaySleeping && !screenMonitor.isLidBlockingWork && isPresent
     case .auto:
-      return screenMonitor.isScreenUnlocked && !screenMonitor.isSystemSleeping && !screenMonitor.isDisplaySleeping && !screenMonitor.isLidClosed && wifiMonitor.isOnWorkWiFi && isPresent
+      return screenMonitor.isScreenUnlocked && !screenMonitor.isSystemSleeping && !screenMonitor.isDisplaySleeping && !screenMonitor.isLidBlockingWork && wifiMonitor.isOnWorkWiFi && isPresent
     }
   }
 
   private func scheduleMidnightTimer(after referenceDate: Date) {
-    midnightTimer?.invalidate()
-
     let calendar = Calendar.current
     guard let nextMidnight = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: referenceDate)) else {
       debugLog.write("midnight.schedule.error referenceDate=\(debugDate(referenceDate))")
       return
     }
+
+    // Called on every event; only (re)create the timer when the target actually changes.
+    if let midnightTimer, midnightTimer.isValid, midnightTimer.fireDate == nextMidnight {
+      return
+    }
+    midnightTimer?.invalidate()
 
     midnightTimer = Timer(fire: nextMidnight, interval: 0, repeats: false) { [weak self] _ in
       Task { @MainActor in
@@ -730,7 +715,7 @@ final class TrackingEngine: ObservableObject {
     switch event {
     case .conditionsChanged:
       return false
-    case .startup, .manualStart, .stop, .midnight:
+    case .startup, .manualStart, .stop, .midnight, .reload:
       return true
     }
   }
@@ -760,7 +745,7 @@ final class TrackingEngine: ObservableObject {
 
   private func conditionSnapshot() -> String {
     let ssid = wifiMonitor.currentSSID ?? "nil"
-    return "state=\(debugDescription(for: state)) autoConditions=\(conditionsMet(for: .auto)) manualConditions=\(conditionsMet(for: .manual)) suppressed=\(autoTrackingSuppressed) wifiSSID='\(ssid)' wifiOnWork=\(wifiMonitor.isOnWorkWiFi) unlocked=\(screenMonitor.isScreenUnlocked) systemSleeping=\(screenMonitor.isSystemSleeping) displaySleeping=\(screenMonitor.isDisplaySleeping) lidClosed=\(screenMonitor.isLidClosed) idle=\(Int(screenMonitor.idleDuration))s day=\(debugDescription(for: todayWorkDay))"
+    return "state=\(debugDescription(for: state)) autoConditions=\(conditionsMet(for: .auto)) manualConditions=\(conditionsMet(for: .manual)) suppressed=\(autoTrackingSuppressed) wifiSSID='\(ssid)' wifiOnWork=\(wifiMonitor.isOnWorkWiFi) unlocked=\(screenMonitor.isScreenUnlocked) systemSleeping=\(screenMonitor.isSystemSleeping) displaySleeping=\(screenMonitor.isDisplaySleeping) lidClosed=\(screenMonitor.isLidClosed) externalDisplayAwake=\(screenMonitor.hasAwakeExternalDisplay) idle=\(Int(screenMonitor.idleDuration))s day=\(debugDescription(for: todayWorkDay))"
   }
 
   private func debugDescription(for event: TrackingEvent) -> String {
@@ -775,6 +760,8 @@ final class TrackingEngine: ObservableObject {
       return "stop(\(debugDate(date)))"
     case .midnight(let date):
       return "midnight(\(debugDate(date)))"
+    case .reload(let date):
+      return "reload(\(debugDate(date)))"
     }
   }
 
@@ -867,10 +854,14 @@ private final class TrackingDebugLog {
     try? handle.close()
   }
 
-  static func format(_ date: Date) -> String {
+  private static let formatter: ISO8601DateFormatter = {
     let formatter = ISO8601DateFormatter()
     formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    return formatter.string(from: date)
+    return formatter
+  }()
+
+  static func format(_ date: Date) -> String {
+    formatter.string(from: date)
   }
 
   private func ensureFileExists() {
