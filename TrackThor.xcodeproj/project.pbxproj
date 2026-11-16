@@ -31,6 +31,9 @@
 		A1B2C3D4E5F6010203040610 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040611 /* CoreWLAN.framework */; };
 		A1B2C3D4E5F6010203040612 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040613 /* CoreLocation.framework */; };
 		A1B2C3D4E5F6010203040614 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040615 /* ServiceManagement.framework */; };
+		A1B2C3D4E5F6010203040516 /* MeetingSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040517 /* MeetingSync.swift */; };
+		A1B2C3D4E5F6010203040526 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040527 /* Meeting.swift */; };
+		A1B2C3D4E5F6010203040558 /* IntervalMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6010203040559 /* IntervalMath.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +62,9 @@
 		A1B2C3D4E5F6010203040613 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		A1B2C3D4E5F6010203040615 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 		A1B2C3D4E5F6010203040700 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040517 /* MeetingSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingSync.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040527 /* Meeting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meeting.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6010203040559 /* IntervalMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntervalMath.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +109,7 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6010203040511 /* TrackingEngine.swift */,
+				A1B2C3D4E5F6010203040517 /* MeetingSync.swift */,
 				A1B2C3D4E5F6010203040513 /* WiFiMonitor.swift */,
 				A1B2C3D4E5F6010203040515 /* ScreenMonitor.swift */,
 			);
@@ -113,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6010203040521 /* DatabaseManager.swift */,
+				A1B2C3D4E5F6010203040527 /* Meeting.swift */,
 				A1B2C3D4E5F6010203040523 /* WorkDay.swift */,
 				A1B2C3D4E5F6010203040525 /* Gap.swift */,
 			);
@@ -145,6 +153,7 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6010203040551 /* DurationFormatter.swift */,
+				A1B2C3D4E5F6010203040559 /* IntervalMath.swift */,
 				A1B2C3D4E5F6010203040553 /* DateFormatting.swift */,
 				A1B2C3D4E5F6010203040555 /* AppSettings.swift */,
 				A1B2C3D4E5F6010203040557 /* LocationPermissionManager.swift */,
@@ -268,6 +277,9 @@
 				A1B2C3D4E5F6010203040540 /* StatsWindowController.swift in Sources */,
 				A1B2C3D4E5F6010203040542 /* StatsView.swift in Sources */,
 				A1B2C3D4E5F6010203040544 /* TimelineBar.swift in Sources */,
+				A1B2C3D4E5F6010203040558 /* IntervalMath.swift in Sources */,
+				A1B2C3D4E5F6010203040526 /* Meeting.swift in Sources */,
+				A1B2C3D4E5F6010203040516 /* MeetingSync.swift in Sources */,
 				A1B2C3D4E5F6010203040550 /* DurationFormatter.swift in Sources */,
 				A1B2C3D4E5F6010203040552 /* DateFormatting.swift in Sources */,
 				A1B2C3D4E5F6010203040554 /* AppSettings.swift in Sources */,

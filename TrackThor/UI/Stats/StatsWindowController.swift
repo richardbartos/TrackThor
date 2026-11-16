@@ -4,8 +4,8 @@ import SwiftUI
 final class StatsWindowController {
   private let panel: NSPanel
 
-  init(trackingEngine: TrackingEngine, database: DatabaseManager, settings: AppSettings) {
-    let view = StatsView(trackingEngine: trackingEngine, database: database)
+  init(trackingEngine: TrackingEngine, meetingSync: MeetingSync, database: DatabaseManager, settings: AppSettings) {
+    let view = StatsView(trackingEngine: trackingEngine, meetingSync: meetingSync, database: database)
       .environmentObject(settings)
       .frame(minWidth: 860, minHeight: 560)
 

@@ -23,6 +23,8 @@ struct Gap: Codable, FetchableRecord, PersistableRecord, Identifiable {
     static let endedAt = Column("ended_at")
   }
 
+  var interval: DateInterval { IntervalMath.make(startedAt, endedAt) }
+
   mutating func didInsert(_ inserted: InsertionSuccess) {
     id = inserted.rowID
   }

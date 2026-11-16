@@ -5,12 +5,14 @@ import SwiftUI
 struct PopoverView: View {
   @EnvironmentObject private var settings: AppSettings
   @ObservedObject var trackingEngine: TrackingEngine
+  @ObservedObject var meetingSync: MeetingSync
   let database: DatabaseManager
   let onOpenStats: () -> Void
   let onOpenSettings: () -> Void
   let onQuit: () -> Void
 
   @State private var history: [WorkDay] = []
+  @State private var weekMeetings: [String: [Meeting]] = [:]
   @State private var now: Date = Date()
   @State private var reloadTask: Task<Void, Never>?
 
@@ -18,11 +20,16 @@ struct PopoverView: View {
 
   var body: some View {
     VStack(spacing: 14) {
-      TodayView(trackingEngine: trackingEngine, now: now)
+      TodayView(trackingEngine: trackingEngine, meetingSync: meetingSync, now: now)
 
       Divider()
 
-      HistoryView(history: history, now: now)
+      HistoryView(
+        history: history,
+        meetingsByDay: weekMeetings,
+        showMeetings: meetingSync.isConfigured,
+        now: now
+      )
 
       Divider()
 
@@ -46,6 +53,7 @@ struct PopoverView: View {
     .onChange(of: trackingEngine.todayWorkDay?.startedAt) { _ in reloadHistory() }
     .onChange(of: trackingEngine.todayWorkDay?.mode) { _ in reloadHistory() }
     .onChange(of: trackingEngine.todayWorkDay?.hasMixedLocations) { _ in reloadHistory() }
+    .onChange(of: meetingSync.revision) { _ in reloadHistory() }
     .onReceive(ticker) { t in
       now = t
     }
@@ -63,20 +71,26 @@ struct PopoverView: View {
 
     reloadTask = Task {
       do {
-        let days = try await Task.detached(priority: .utility) {
+        let (days, meetings) = try await Task.detached(priority: .utility) {
           try dbQueue.read { db in
-            try WorkDay
+            let days = try WorkDay
               .filter((WorkDay.Columns.date >= start) && (WorkDay.Columns.date <= end))
               .order(WorkDay.Columns.date.desc)
               .fetchAll(db)
+            let meetings = try Meeting
+              .filter((Meeting.Columns.date >= start) && (Meeting.Columns.date <= end))
+              .fetchAll(db)
+            return (days, meetings)
           }
         }.value
 
         guard !Task.isCancelled else { return }
         history = days
+        weekMeetings = Dictionary(grouping: meetings) { DateFormatting.dayKeyFormatter.string(from: $0.date) }
       } catch {
         guard !Task.isCancelled else { return }
         history = []
+        weekMeetings = [:]
       }
     }
   }

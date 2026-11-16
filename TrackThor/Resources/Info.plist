@@ -24,6 +24,10 @@
   <string>13.0</string>
   <key>LSUIElement</key>
   <true/>
+  <key>NSCalendarsUsageDescription</key>
+  <string>TrackThor reads your calendar to measure how much of your work day you spend in meetings.</string>
+  <key>NSCalendarsFullAccessUsageDescription</key>
+  <string>TrackThor reads your calendar to measure how much of your work day you spend in meetings.</string>
   <key>NSLocationWhenInUseUsageDescription</key>
   <string>Location access is needed to read your WiFi network name to detect when you're at the office.</string>
 </dict>

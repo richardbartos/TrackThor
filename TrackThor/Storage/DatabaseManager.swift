@@ -54,6 +54,22 @@ final class DatabaseManager {
         WHERE last_activity_at IS NULL
         """)
     }
+    migrator.registerMigration("createMeetings") { db in
+      try db.create(table: "meetings") { t in
+        t.autoIncrementedPrimaryKey("id")
+        t.column("date", .date).notNull().indexed()
+        t.column("event_id", .text).notNull()
+        t.column("calendar_id", .text).notNull()
+        t.column("title", .text).notNull()
+        t.column("started_at", .datetime).notNull()
+        t.column("ended_at", .datetime).notNull()
+      }
+      try db.create(table: "meeting_days") { t in
+        t.column("date", .date).notNull().primaryKey()
+        t.column("synced_at", .datetime).notNull()
+        t.column("is_final", .boolean).notNull().defaults(to: false)
+      }
+    }
     return migrator
   }
 }
