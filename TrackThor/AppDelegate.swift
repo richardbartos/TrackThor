@@ -43,6 +43,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ notification: Notification) {
     _ = databaseManager
     settings.applyLaunchAtLogin()
+    // A menu bar app that switches to a regular app (Dock, Cmd-Tab) while its window is open
+    // otherwise often shows the generic app icon there.
+    if let icon = NSImage(named: "AppIcon") {
+      NSApp.applicationIconImage = icon
+    }
 
     statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     configureStatusItem()
