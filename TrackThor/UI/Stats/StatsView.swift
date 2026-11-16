@@ -60,7 +60,7 @@ struct StatsView: View {
                       )
                       durationRow(
                         label: "Focus time",
-                        value: DurationFormatter.hoursMinutes(metrics.focusTime)
+                        value: metrics.focusSummary
                       )
                     }
                   }

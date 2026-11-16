@@ -91,7 +91,9 @@ struct DayMetrics {
     // Stretches of the day outside laptop tracking and outside meetings; short ones count as active.
     let untracked = IntervalMath.subtract(IntervalMath.subtract([span], [tracked]), meetings)
       .filter { $0.duration >= minimumGap }
+    // A meeting can cover most of a gap; what's left is held to the same visibility threshold.
     let trackedGaps = IntervalMath.subtract(IntervalMath.clip(visibleGaps, to: tracked), meetings)
+      .filter { $0.duration >= minimumGap }
 
     self.span = span
     self.meetings = meetings
@@ -105,14 +107,13 @@ struct DayMetrics {
   /// Active time outside meetings.
   var focusTime: TimeInterval { max(0, activeTime - meetingTime) }
 
-  /// Meeting time as a share of the whole tracked day (start → end), e.g. 0.28.
-  var meetingShare: Double? {
-    total >= 60 ? meetingTime / total : nil
-  }
+  /// "2h 15m · 28%" — share of the whole day (start → end).
+  var meetingSummary: String { summary(meetingTime) }
+  var focusSummary: String { summary(focusTime) }
 
-  var meetingSummary: String {
-    let duration = DurationFormatter.hoursMinutes(meetingTime)
-    guard let share = meetingShare, meetingTime > 0 else { return duration }
-    return "\(duration) · \(Int((share * 100).rounded()))%"
+  private func summary(_ time: TimeInterval) -> String {
+    let duration = DurationFormatter.hoursMinutes(time)
+    guard total >= 60, time > 0 else { return duration }
+    return "\(duration) · \(Int((time / total * 100).rounded()))%"
   }
 }
